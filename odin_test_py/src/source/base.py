@@ -26,12 +26,12 @@ class Config():
         # config目录
         config_dir = PROJECT_DIR + '/config'
         # config.ini文件路径
-        config = os.path.join(config_dir, 'config1.ini')
+        config = os.path.join(config_dir, 'config.ini')
 
         if os.path.exists(config):
             # 读取config.ini文件
             conf = configparser.ConfigParser()
-            conf.read(config)
+            conf.read(config, encoding='utf-8')
 
             # config.ini文件配置
             self.testhost = os.path.join(PROJECT_DIR, conf.get('dir_base', 'host_test'))        # 测试接口host
@@ -161,10 +161,10 @@ class Base_Method():
             func(*args, **kwargs)
         return wrapper
 
-    def getdict(self, *args, **kwargs):
-        print(*args)
-        print(**kwargs)
-        # return dict(zip(*args, **kwargs))
+    # def getdict(self, *args, **kwargs):
+    #     print(*args)
+    #     print(**kwargs)
+    #     # return dict(zip(*args, **kwargs))
 
 
     def resquest_login(self, username, password):
@@ -253,7 +253,7 @@ class Base_Method():
                 raise Exception ('zookeeper 连接失败')
         return warpper
 
-    @connect_zkp()
+    # @connect_zkp()
     def base_zkp(self, basedir, id, pid):
         """
         # zkp基础
