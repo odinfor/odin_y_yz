@@ -100,6 +100,7 @@ class Logging():
         self.printconsole('debug', message)
 
     def info(self, message):
+        “”“# info ”“”
         self.printconsole('info', message)
 
     def warring(self, message):
@@ -280,14 +281,10 @@ class Base_Method():
                 func()
                 self.zkp.close()
             else:
-                raise Exception ('zookeeper 连接失败')
+                raise Exception('zookeeper 连接失败')
         return warpper
 
-<<<<<<< HEAD
-    # @connect_zkp
-=======
     # @connect_zkp()
->>>>>>> 70591239c4b0ad937a4f892d9f546b5df4977998
     def base_zkp(self, basedir, id, pid):
         """
         # zkp基础
@@ -317,11 +314,11 @@ class Base_Method():
             for i in range(len(children)):
                 path = os.path.join(basedir, children[i])
                 cut = path.split('/')
-                n_id = str(len(cut)-1) + str(i) + str(id)
+                n_id = str(len(cut) - 1) + str(i) + str(id)
                 basedir(path, n_id, id)
         except Exception as e:
             data = str(e)
-            
+
 
 
 
