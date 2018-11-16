@@ -26,7 +26,7 @@ class Config():
         # config目录
         config_dir = PROJECT_DIR + '/config'
         # config.ini文件路径
-        config = os.path.join(config_dir, 'config1.ini')
+        config = os.path.join(config_dir, 'config.ini')
 
         if os.path.exists(config):
             # 读取config.ini文件
@@ -137,15 +137,45 @@ class Base_Method():
         self.log = Logging()
         self.zkp = KazooClient(hosts=self.conf.zkp_host)
 
-    def analyze_excel(self, filename):
+        self.table_input = set()
+
+    def analyze_excel(self, filename='TaskOs_api_refdata.xlsx'):
         """
         # 解析excel文件
         :param filename:文件路径
         :return: 以生成器返回
         """
-        openfile = xlrd.open_workbook(filename=filename)
+        filepath = os.path.join(self.conf.refdata_dir, filename)
+        openfile = xlrd.open_workbook(filename=filepath)
 
-        pass
+        # 配置参数sheet
+        table_params = openfile.sheet_by_name('input')
+        rows_params = table_params.nrows        # 行
+        ncols_params = table_params.ncols       # 列
+
+        # 配置校验sheet
+        table_check = openfile.sheet_by_name('check')
+        rows_check = table_check.nrows
+        ncols_check = table_check.ncols
+
+        # excel头行
+        row_head = table_params.row_values(1)
+        # 去除空单元格
+        while '' in row_head:
+            row_head.remove('')
+
+        # excel配置内容
+        for rownum in range(2, rows_params):
+            row = table_params.row_values(rownum)
+            # 去除空单元格
+            if row:
+                while '' in row:
+                    row.remove('')
+
+            # 组合
+            dict1 = {row_head[0]:row[0], row_head[1]:row[1], row_head[2]:row[2:]}
+            self.table_input.add(dict1)
+
 
     def write_excel(self, filename, data):
         """
@@ -253,7 +283,7 @@ class Base_Method():
                 raise Exception ('zookeeper 连接失败')
         return warpper
 
-    @connect_zkp()
+    # @connect_zkp
     def base_zkp(self, basedir, id, pid):
         """
         # zkp基础
@@ -306,7 +336,7 @@ class Base_Method():
 
 
 if __name__ == "__main__":
-    test = Base_Method
-    test.getdict(['f', 'g', 'c'], [1,2,3])
-
+    test = Base_Method()
+    test.analyze_excel()
+    print(test.table_input)
 
