@@ -31,7 +31,7 @@ class Config():
         if os.path.exists(config):
             # 读取config.ini文件
             conf = configparser.ConfigParser()
-            conf.read(config)
+            conf.read(config, encoding='utf-8')
 
             # config.ini文件配置
             self.testhost = os.path.join(PROJECT_DIR, conf.get('dir_base', 'host_test'))        # 测试接口host
