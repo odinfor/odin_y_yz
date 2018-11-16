@@ -146,7 +146,7 @@ class Base_Method():
         :return: 以生成器返回
         """
         filepath = os.path.join(self.conf.refdata_dir, filename)
-        openfile = xlrd.open_workbook(filename=filepath)
+        openfile = xlrd.open_workbook(filename=filepath, encoding='utf-8')
 
         # 配置参数sheet
         table_params = openfile.sheet_by_name('input')
@@ -283,7 +283,11 @@ class Base_Method():
                 raise Exception ('zookeeper 连接失败')
         return warpper
 
+<<<<<<< HEAD
     # @connect_zkp
+=======
+    # @connect_zkp()
+>>>>>>> 70591239c4b0ad937a4f892d9f546b5df4977998
     def base_zkp(self, basedir, id, pid):
         """
         # zkp基础
