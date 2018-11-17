@@ -196,15 +196,21 @@ class Base_Method():
             dictcheck = {row_check_head[0]:row[0], row_check_head[1]:row[1], row_check_head[2]:row[2:]}   # 组合头字段与行单元格
             get_check_sheet.append(dictcheck)
 
-        dict_excel = {'params_sheet':get_params_sheet, 'check_sheet':get_check_sheet}
+        dict_excel = {'params_sheet': get_params_sheet, 'check_sheet': get_check_sheet}
         return dict_excel
 
     def analysis_content(self, data):
         """
         # 解析读取excel的内容,将参数配置组装,且与校验配置对应
+        # 依赖请求参数通过{}识别，后续增加支持
         :param data:字典类型
         :return:
         """
+        paramssheetlist = data['params_sheet']     # 参数配置sheet数据
+        checksheetlist = data['check_sheet']       # 校验配置sheet数据
+
+
+
         pass
 
     def write_excel(self, filename, data):
@@ -367,6 +373,6 @@ class Base_Method():
 
 if __name__ == "__main__":
     test = Base_Method()
-    exceldict = test.analyze_excel()
+    exceldict = test.get_excel_content()
     print(exceldict)
 
