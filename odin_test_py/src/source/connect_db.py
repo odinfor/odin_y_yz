@@ -10,6 +10,7 @@ base = declarative_base()   # 创建基类
 class ParamsTable(base):
     __tablename__ = 'params_table'
     id = Column(Integer, primary_key=True, autoincrement=True)
+    indexID = Column(Integer, nullable=True)
     explain = Column(Text, nullable=True)
     params_1 = Column(String(50), nullable=True)
     params_2 = Column(String(50), nullable=True)
@@ -23,8 +24,8 @@ class ParamsTable(base):
     params_10 = Column(String(50), nullable=True)
     params_11 = Column(String(50), nullable=True)
 
-    def __init__(self, id, explain, *args):
-        self.id = id
+    def __init__(self,indexID, explain, *args):
+        self.indexID = indexID
         self.explain = explain
         self.params_1 = args[0]
         self.params_2 = args[1]
@@ -38,10 +39,16 @@ class ParamsTable(base):
         self.params_10 = args[9]
         self.params_11 = args[10]
 
+    def __repr__(self):
+        return "<ParamsTable(indexID=%, explain=%, params_1=%, params_2=%, params_3=%, params_4=%, params_5=%," \
+               "params_6=%, params_7=%, params_8=%, params_9=%, params_10=%, params_11=%)>"%(self.indexID, self.explain,
+                self.params_1, self.params_2, self.params_3, self.params_4, self.params_5, self.params_6, self.params_7,
+                self.params_8, self.params_9, self.params_10, self.params_11)
 
 class CheckTable(base):
     __tablename__ = 'check_table'
     id = Column(Integer, primary_key=True, autoincrement=True)
+    indexID = Column(Integer, nullable=True)
     explain = Column(Text, nullable=True)
     check_1 = Column(String(50), nullable=True)
     check_2 = Column(String(50), nullable=True)
@@ -55,8 +62,8 @@ class CheckTable(base):
     check_10 = Column(String(50), nullable=True)
     check_11 = Column(String(50), nullable=True)
 
-    def __init__(self, id, explain, *args):
-        self.id = id
+    def __init__(self,indexID, explain, *args):
+        self.indexID = indexID
         self.explain = explain
         self.check_1 = args[0]
         self.check_2 = args[1]
@@ -71,10 +78,11 @@ class CheckTable(base):
         self.check_11 = args[10]
 
 
+#@staticmethod
 def create_table():
     conf = Config()
-    db_adress = 'mysql+pymysql://' + conf.db_username + ':' + conf.db_password + '@' + conf.db_host + ':' + conf.db_prot + '/' + conf.db_name
-    print('db_adress:', db_adress)
+    db_adress = 'mysql+pymysql://' + conf.db_username + ':' + conf.db_password + '@' + conf.db_host + ':'\
+                + conf.db_prot + '/' + conf.db_name
     # 初始化连接mysqldb, 不显示sql logging
     engine = create_engine(db_adress, echo=False)
 
@@ -83,8 +91,27 @@ def create_table():
     Session = sessionmaker(bind=engine)     # 创建与数据库会话
     session = Session()
 
+
+class DBControl():
+    def __init__(self):
+        conf = Config()
+        db_adress = 'mysql+pymysql://' + conf.db_username + ':' + conf.db_password + '@' + conf.db_host + ':' \
+                    + conf.db_prot + '/' + conf.db_name
+        self.engine = create_engine(db_adress, echo=False)  # 建立数据库
+        db_session = sessionmaker(bind=self.engine)  # 创建连接
+        self.session = db_session()
+
+    def close_db(self):
+        self.session.close()
+
+    # def insert(self, table, )
+
+
+
 if __name__ == '__main__':
     create_table()
+    #test = DBControl()
+    #test()
 
 
 
