@@ -9,6 +9,7 @@ import requests
 from kazoo.client import KazooClient
 import json
 import pymysql
+import platform
 
 '''
 Created on 2018-11-11
@@ -100,7 +101,6 @@ class Logging():
         self.printconsole('debug', message)
 
     def info(self, message):
-        “”“# info ”“”
         self.printconsole('info', message)
 
     def warring(self, message):
@@ -138,16 +138,23 @@ class Base_Method():
         self.log = Logging()
         self.zkp = KazooClient(hosts=self.conf.zkp_host)
 
-        self.table_input = set()
-
-    def analyze_excel(self, filename='TaskOs_api_refdata.xlsx'):
+    def get_excel_content(self, filename='TaskOs_api_refdata.xlsx'):
         """
         # 解析excel文件
         :param filename:文件路径
-        :return: 以生成器返回
+        :return: 返回存储excel内容列表
         """
         filepath = os.path.join(self.conf.refdata_dir, filename)
-        openfile = xlrd.open_workbook(filename=filepath, encoding='utf-8')
+        system = platform.system()  # 获取系统环境
+        if system == 'Windows' or system == 'Linux':
+            # Windows、Linux系统环境
+            openfile = xlrd.open_workbook(filename=filepath, encoding='utf-8')
+        elif system == 'Darwin':
+            # MacOSX系统环境
+            openfile = xlrd.open_workbook(filename=filepath)
+        else:
+            self.log.error("不支持的系统环境")
+            return False
 
         # 配置参数sheet
         table_params = openfile.sheet_by_name('input')
@@ -160,23 +167,45 @@ class Base_Method():
         ncols_check = table_check.ncols
 
         # excel头行
-        row_head = table_params.row_values(1)
+        row_params_head = table_params.row_values(1)
+        row_check_head = table_check.row_values(1)
         # 去除空单元格
-        while '' in row_head:
-            row_head.remove('')
+        while '' in row_params_head:
+            row_params_head.remove('')
+        while '' in row_check_head:
+            row_check_head.remove('')
 
-        # excel配置内容
+        get_params_sheet = []   # 空列表存储参数配置sheet
+        get_check_sheet = []    # 空列表存储校验配置sheet
+        # excel params sheet配置内容
         for rownum in range(2, rows_params):
             row = table_params.row_values(rownum)
             # 去除空单元格
             if row:
                 while '' in row:
                     row.remove('')
+            dictparams = {row_params_head[0]:row[0], row_params_head[1]:row[1], row_params_head[2]:row[2:]}   # 组合头字段与行单元格
+            get_params_sheet.append(dictparams)
+        # excel check sheet配置内容
+        for rownum in range(2, rows_check):
+            row = table_check.row_values(rownum)
+            # 去除空单元格
+            if row:
+                while '' in row:
+                    row.remove('')
+            dictcheck = {row_check_head[0]:row[0], row_check_head[1]:row[1], row_check_head[2]:row[2:]}   # 组合头字段与行单元格
+            get_check_sheet.append(dictcheck)
 
-            # 组合
-            dict1 = {row_head[0]:row[0], row_head[1]:row[1], row_head[2]:row[2:]}
-            self.table_input.add(dict1)
+        dict_excel = {'params_sheet':get_params_sheet, 'check_sheet':get_check_sheet}
+        return dict_excel
 
+    def analysis_content(self, data):
+        """
+        # 解析读取excel的内容,将参数配置组装,且与校验配置对应
+        :param data:字典类型
+        :return:
+        """
+        pass
 
     def write_excel(self, filename, data):
         """
@@ -338,6 +367,6 @@ class Base_Method():
 
 if __name__ == "__main__":
     test = Base_Method()
-    test.analyze_excel()
-    print(test.table_input)
+    exceldict = test.analyze_excel()
+    print(exceldict)
 
