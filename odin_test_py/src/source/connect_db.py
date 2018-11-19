@@ -2,9 +2,30 @@
 from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, Text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from src.source.base import Config
+from src.source.base import Config, Base_Method
 
 base = declarative_base()   # 创建基类
+basemethod = Base_Method().get_excel_content()
+
+
+def make_paramdict(sheetname):
+    """
+    # 生成插入列表
+    :param sheetname: excel sheet名称
+    :return:
+    """
+    if sheetname in ['input', 'check']:
+        basemethod = Base_Method().get_excel_content()
+        listparams = basemethod[sheetname]
+        list1 = listparams[0]['params']
+        while len(list1) < 11:
+            list1.append(None)
+        return list1
+    else:
+        raise Exception('调用make_paramdict方法输入sheet名称不存在')
+
+params_list = make_paramdict(sheetname='input')
+check_list = make_paramdict(sheetname='check')
 
 
 class ParamsTable(base):
@@ -39,11 +60,11 @@ class ParamsTable(base):
         self.params_10 = args[9]
         self.params_11 = args[10]
 
-    # def __repr__(self):
-    #     return "<ParamsTable(indexID=%, explain=%, params_1=%, params_2=%, params_3=%, params_4=%, params_5=%," \
-    #            "params_6=%, params_7=%, params_8=%, params_9=%, params_10=%, params_11=%)>"%(self.indexID, self.explain,
-    #             self.params_1, self.params_2, self.params_3, self.params_4, self.params_5, self.params_6, self.params_7,
-    #             self.params_8, self.params_9, self.params_10, self.params_11)
+    def __repr__(self):
+        return "<ParamsTable(indexID=%, explain=%, params_1=%, params_2=%, params_3=%, params_4=%, params_5=%," \
+               "params_6=%, params_7=%, params_8=%, params_9=%, params_10=%, params_11=%)>"%(self.indexID, self.explain,
+                self.params_1, self.params_2, self.params_3, self.params_4, self.params_5, self.params_6, self.params_7,
+                self.params_8, self.params_9, self.params_10, self.params_11)
 
 class CheckTable(base):
     __tablename__ = 'check_table'
@@ -65,7 +86,6 @@ class CheckTable(base):
     def __init__(self, indexID, explain, *args):
         self.indexID = indexID
         self.explain = explain
-        argslen = len(args)
         self.check_1 = args[0]
         self.check_2 = args[1]
         self.check_3 = args[2]
@@ -77,6 +97,12 @@ class CheckTable(base):
         self.check_9 = args[8]
         self.check_10 = args[9]
         self.check_11 = args[10]
+
+    def __repr__(self):
+        return "<ParamsTable(indexID=%, explain=%, check_1=%, check_2=%, check_3=%, check_4=%, check_5=%,check_6=%, " \
+               "check_7=%, check_8=%, check_9=%, check_10=%, check_11=%)>"%(self.indexID, self.explain,self.check_1,
+                self.check_2, self.check_3, self.check_4, self.check_5, self.check_6, self.check_7,self.check_8,
+                self.check_9, self.check_10, self.check_11)
 
 
 class DBControl():
@@ -100,24 +126,15 @@ class DBControl():
         self.session.add(obj)
         self.session.commit()
 
-
-
-
 if __name__ == '__main__':
     # create_table()
-    # test = DBControl()
-    # test()
-    obj1 = CheckTable(1, 'this is explain', *[1,2])
+    test = DBControl()
+    test()
+    obj1 = CheckTable(1, 'this is explain', *params_list)
 
-    dbcontrol = DBControl()
-    dbcontrol.create_table()
-    #
-    # def test1(id, *args):
-    #     id = id
-    #     a1 = args[0]
-    #     print('args:', args)
-    #     #print('kwargs:', kwargs)
-    #     print('='*10)
-    #     print(a1)
-    # test1(2, *['gd', 'gdg'])
+    # dbcontrol = DBControl()
+    # dbcontrol.create_table()
+
+
+
 
