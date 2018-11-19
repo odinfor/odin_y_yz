@@ -155,7 +155,6 @@ class Base_Method():
         else:
             self.log.error("不支持的系统环境")
             return False
-
         # 配置参数sheet
         table_params = openfile.sheet_by_name('input')
         rows_params = table_params.nrows        # 行
@@ -169,6 +168,7 @@ class Base_Method():
         # excel头行
         row_params_head = table_params.row_values(1)
         row_check_head = table_check.row_values(1)
+
         # 去除空单元格
         while '' in row_params_head:
             row_params_head.remove('')
@@ -184,7 +184,7 @@ class Base_Method():
             if row:
                 while '' in row:
                     row.remove('')
-            dictparams = {row_params_head[0]:row[0], row_params_head[1]:row[1], row_params_head[2]:row[2:]}   # 组合头字段与行单元格
+            dictparams = {row_params_head[0]:row[0], row_params_head[1]:row[1], row_params_head[2]:row[2], row_params_head[3]:row[3:]}   # 组合头字段与行单元格
             get_params_sheet.append(dictparams)
         # excel check sheet配置内容
         for rownum in range(2, rows_check):
