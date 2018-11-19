@@ -148,7 +148,7 @@ class Base_Method():
         system = platform.system()  # 获取系统环境
         if system == 'Windows' or system == 'Linux':
             # Windows、Linux系统环境
-            openfile = xlrd.open_workbook(filename=filepath, encoding='utf-8')
+            openfile = xlrd.open_workbook(filename=filepath, encoding_override='utf-8')
         elif system == 'Darwin':
             # MacOSX系统环境
             openfile = xlrd.open_workbook(filename=filepath)
