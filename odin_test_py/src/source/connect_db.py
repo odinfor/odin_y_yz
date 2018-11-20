@@ -80,6 +80,7 @@ class CheckTable(base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     indexID = Column(Integer, nullable=True)
     explain = Column(Text, nullable=True)
+    code = Column(Integer, default=200)
     check_1 = Column(String(50), nullable=True, default=None)
     check_2 = Column(String(50), nullable=True, default=None)
     check_3 = Column(String(50), nullable=True, default=None)
@@ -92,9 +93,10 @@ class CheckTable(base):
     check_10 = Column(String(50), nullable=True, default=None)
     check_11 = Column(String(50), nullable=True, default=None)
 
-    def __init__(self, indexID, explain, *args):
+    def __init__(self, indexID, explain, code, *args):
         self.indexID = indexID
         self.explain = explain
+        self.code = code
         self.check_1 = args[0]
         self.check_2 = args[1]
         self.check_3 = args[2]
@@ -108,10 +110,10 @@ class CheckTable(base):
         self.check_11 = args[10]
 
     def __repr__(self):
-        return "<ParamsTable(indexID=%, explain=%, check_1=%, check_2=%, check_3=%, check_4=%, check_5=%,check_6=%, " \
-               "check_7=%, check_8=%, check_9=%, check_10=%, check_11=%)>"%(self.indexID, self.explain,self.check_1,
-                self.check_2, self.check_3, self.check_4, self.check_5, self.check_6, self.check_7,self.check_8,
-                self.check_9, self.check_10, self.check_11)
+        return "<ParamsTable(indexID=%, explain=%, code=%, check_1=%, check_2=%, check_3=%, check_4=%, check_5=%,check_6=%, " \
+               "check_7=%, check_8=%, check_9=%, check_10=%, check_11=%)>"%(self.indexID, self.explain, self.code,
+                self.check_1,self.check_2, self.check_3, self.check_4, self.check_5, self.check_6, self.check_7,
+                self.check_8,self.check_9, self.check_10, self.check_11)
 
 
 class DBControl():
