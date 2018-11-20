@@ -17,12 +17,12 @@ def make_paramdict(sheetname):
     if sheetname in ['input', 'check']:
         basemethod = Base_Method().get_excel_content()
         if sheetname == 'input':
-            listparams = basemethod['params_sheet']
+            listsheet = basemethod['params_sheet']
         else:
-            listparams = basemethod['check_sheet']
+            listsheet = basemethod['check_sheet']
         list1 = []
-        if len(listparams) > 0:
-            for i in listparams:
+        if len(listsheet) > 0:
+            for i in listsheet:
                 list2 = i['params']
                 while len(list2) <= 11:
                     list2.append(None)
@@ -40,7 +40,9 @@ class ParamsTable(base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     indexID = Column(Integer, nullable=True)
     explain = Column(Text, nullable=True)
-    url = Column(String(50), nullable=False, default='http://127.0.0.1')
+    isrun = Column(String(5), nullable=False, default='True')
+    host = Column(String(50), nullable=False, default='http://127.0.0.1')
+    url = Column(String(50), nullable=True,)
     params_1 = Column(String(50), nullable=True, default=None)
     params_2 = Column(String(50), nullable=True, default=None)
     params_3 = Column(String(50), nullable=True, default=None)
@@ -53,9 +55,11 @@ class ParamsTable(base):
     params_10 = Column(String(50), nullable=True, default=None)
     params_11 = Column(String(50), nullable=True, default=None)
 
-    def __init__(self, indexID, explain, url, *args):
+    def __init__(self, indexID, explain, isrun, host, url, *args):
         self.indexID = indexID
         self.explain = explain
+        self.isrun = isrun
+        self.host = host
         self.url = url
         self.params_1 = args[0]
         self.params_2 = args[1]
@@ -70,9 +74,9 @@ class ParamsTable(base):
         self.params_11 = args[10]
 
     def __repr__(self):
-        return "<ParamsTable(indexID=%, explain=%, url=%, params_1=%, params_2=%, params_3=%, params_4=%, params_5=%," \
+        return "<ParamsTable(indexID=%, explain=%, isrun=%, host=%, url=%, params_1=%, params_2=%, params_3=%, params_4=%, params_5=%," \
                "params_6=%, params_7=%, params_8=%, params_9=%, params_10=%, params_11=%)>"%(self.indexID, self.explain,
-                self.url, self.params_1, self.params_2, self.params_3, self.params_4, self.params_5, self.params_6,
+                self.isrun, self.host, self.url, self.params_1, self.params_2, self.params_3, self.params_4, self.params_5, self.params_6,
                 self.params_7,self.params_8, self.params_9, self.params_10, self.params_11)
 
 class CheckTable(base):
@@ -149,12 +153,11 @@ class DBControl():
         #         objlist2.append(obj)
         if len(params_list) > 0:
             for param in paramsheet:
-                obj = ParamsTable(param['id'], param['explain'], param['url'], *params_list[paramsheet.index(param)])
-                print(params_list[paramsheet.index(param)])
+                obj = ParamsTable(param['id'], param['explain'], param['isrun'], param['host'], param['url'], *params_list[paramsheet.index(param)])
                 self.insert(obj)
         if len(checksheet) > 0:
             for check in checksheet:
-                obj = CheckTable(check['id'], check['explain'], *check_list[checksheet.index(check)])
+                obj = CheckTable(check['id'], check['explain'], check['code'], *check_list[checksheet.index(check)])
                 self.insert(obj)
 
     def drop_all_db(self):
