@@ -193,7 +193,7 @@ class Base_Method():
             if row:
                 while '' in row:
                     row.remove('')
-            dictcheck = {row_check_head[0]:row[0], row_check_head[1]:row[1], row_check_head[2]:row[2:]}   # 组合头字段与行单元格
+            dictcheck = {row_check_head[0]:row[0], row_check_head[1]:row[1], row_check_head[2]:row[2], row_check_head[3]:row[3:]}   # 组合头字段与行单元格
             get_check_sheet.append(dictcheck)
 
         dict_excel = {'params_sheet': get_params_sheet, 'check_sheet': get_check_sheet}
@@ -330,7 +330,6 @@ class Base_Method():
         children:子节点个数
         deep:深度
         """
-
         try:
             if basedir == '/':
                 children = ['redis', 'game', 'uc']
