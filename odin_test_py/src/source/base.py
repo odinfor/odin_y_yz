@@ -184,7 +184,9 @@ class Base_Method():
             if row:
                 while '' in row:
                     row.remove('')
-            dictparams = {row_params_head[0]:row[0], row_params_head[1]:row[1], row_params_head[2]:row[2], row_params_head[3]:row[3:]}   # 组合头字段与行单元格
+            # 组合头字段与行单元格
+            dictparams = {row_params_head[0]:row[0], row_params_head[1]:row[1], row_params_head[2]:row[2],
+                          row_params_head[3]:row[3], row_params_head[4]:row[4], row_params_head[5]:row[5:]}
             get_params_sheet.append(dictparams)
         # excel check sheet配置内容
         for rownum in range(2, rows_check):
