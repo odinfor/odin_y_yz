@@ -5,8 +5,12 @@ import random
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import pymysql
-from src.source.base import Logging
-
+import sys
+import os
+curPath = os.path.abspath(os.path.dirname(__file__))
+rootPath = os.path.split(curPath)[0]
+sys.path.append(rootPath)
+from base import Logging
 
 class PySQLDB():
     """
@@ -127,8 +131,9 @@ class ProcessAPI:
                     'status': self.status, 'comment': self.comment}
 
             self.log.debug('开始addprocess流程数据库检查,检查data传入code:{}是否存在'.format(self.code))
-            countcode = self.PySQL.docursor("select count(code) from toc_global_setting_process where code='{}'".format(self.code))
-            if countcode == 0:
+            #countcode = self.PySQL.docursor("select count(code) from toc_global_setting_process where code='{}'".format(self.code))
+            fetcode = self.PySQL.fetchall("select code from toc_global_setting_process where code='{}'".format(self.code))
+            if len(fetcode) == 0:
                 self.log.debug('code:{}数据不存在数据库中')
             else:
                 self.log.error('code:{}的数据已存在数据库中')
@@ -141,8 +146,9 @@ class ProcessAPI:
                     'status': self.status, 'comment': self.comment}
 
             self.log.debug('开始updateprocess流程数据库检查,检查data传入id:{}是否存在'.format(self.id))
-            countid = self.PySQL.docursor("select count(id) from toc_global_setting_process where id='{}'".format(self.id))
-            if countid > 0:
+            # countid = self.PySQL.docursor("select count(id) from toc_global_setting_process where id='{}'".format(self.id))
+            fetid = self.PySQL.fetchall("select id from toc_global_setting_process where id='{}'".format(self.id))
+            if len(fetid) > 0:
                 self.log.info('库中查询到id={}的数据,继续执行更新流程接口')
             else:
                 self.log.error('库中没有找到id={}的数据,手动抛出异常,不执行更新流程接口')
@@ -154,8 +160,10 @@ class ProcessAPI:
                     'status': self.status}
 
             self.log.debug('开始updatestatus流程数据库检查,检查data传入id:{}是否存在'.format(self.id))
-            countid = self.PySQL.docursor("select count(id) from toc_global_setting_process where id='{}'".format(self.id))
-            if countid > 0:
+
+            # countid = self.PySQL.docursor("select count(id) from toc_global_setting_process where id='{}'".format(self.id))
+            fetid = self.PySQL.fetchall("select id from toc_global_setting_process where id='{}'".format(self.id))
+            if len(fetid) > 0:
                 self.log.info('库中查询到id={}的数据,继续执行更新流程状态接口')
             else:
                 self.log.error('库中没有找到id={}的数据,手动抛出异常,不执行更新流程状态接口')
@@ -340,10 +348,10 @@ def runtest():
         return rspjson
 
 if __name__ == '__main__':
-    # run = runtest()
-    # print(run)
-    test = PySQLDB()
-    countcode = test.docursor(sql="select count(*) from toc_global_setting_process where code='testcode_31';")
-    print(countcode)
-    test.closedb()
+    run = runtest()
+    print(run)
+    # test = PySQLDB()
+    # countcode = test.fetchall(sql="select code from toc_global_setting_process where code='ccc';")
+    # print(countcode)
+    # test.closedb()
 
