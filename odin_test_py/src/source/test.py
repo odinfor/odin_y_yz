@@ -177,7 +177,7 @@ class ProcessAPI:
             self.log.debug('queryPage无需检查库数据')
 
         # print("当前执行流程:{},\n调用接口:{},\npost参数表单:{}".format(interfacetype, url, data))
-        self.log.info("当前执行流程:{},\n调用接口:{},\npost参数表单:{}".format(interfacetype, url, data))
+        self.log.info("\n当前执行流程:{},\n调用接口:{},\npost参数表单:{}".format(interfacetype, url, data))
         rsp = requests.post(url, json.dumps(data), headers=headers)
         try:
             rsp.raise_for_status()
@@ -199,43 +199,46 @@ class ProcessAPI:
         :param interfacetype:接口流程类型
         :return:
         """
-        if interfacetype == 'addprocess':
-            # 新增流程接口校验,只查询数据库中该code数据已写入库
-            self.log.debug('新增流程接口校验,只查询数据库中该code数据已写入库')
-            self.log.info('开始检查库')
-            fetcode = self.PySQL.fetchall(sql="select * from toc_global_setting_process where code='{}'".format(self.code))
-            if len(fetcode) > 0:
-                self.log.info('库中检查到该数据:{}'.format(fetcode))
-                self.log.info('新增流程接口校验结束,查询数据库中数据已写入库')
-                return True
-            else:
-                self.log.error('库中未检查到该数据')
-                self.log.error('新增流程接口校验结束,查询数据库中数据写入库失败')
-                return False
+        if rsp['error_code'] == 0:
+            if interfacetype == 'addprocess':
+                # 新增流程接口校验,只查询数据库中该code数据已写入库
+                self.log.debug('新增流程接口校验,只查询数据库中该code数据已写入库')
+                self.log.info('开始检查库')
+                fetcode = self.PySQL.fetchall(sql="select * from toc_global_setting_process where code='{}'".format(self.code))
+                if len(fetcode) > 0:
+                    self.log.info('库中检查到该数据:{}'.format(fetcode))
+                    self.log.info('新增流程接口校验结束,查询数据库中数据已写入库')
+                    return True
+                else:
+                    self.log.error('库中未检查到该数据')
+                    self.log.error('新增流程接口校验结束,查询数据库中数据写入库失败')
+                    return False
 
-        elif interfacetype == 'updateprocess':
-            # 更新流程接口校验,只检查所有字段数据是否和修改字段数据一致
-            pass
-
-        elif interfacetype == 'updatestatus':
-            # 更新流程状态接口,检查修改id的status状态字段
-            self.log.debug('更新流程状态接口,检查修改id的status状态字段')
-            self.log.info('开始检查库')
-            fetstatus = self.PySQL.fetchall(sql="select status from toc_global_setting_process where id='{}'".format(self.id))
-            if fetstatus == self.status:
-                self.log.info('status字段状态与data传入一致')
-                return True
-            else:
-                self.log.error('status字段状态与data传入一致,库中status={},data传入status={}'.format(fetstatus, self.status))
-                return False
-        elif interfacetype == 'queryPage':
-            # 分页查询接口,检查list长度是否与data传入pageSize一致
-            self.log.debug('分页查询接口,检查list长度是否与data传入pageSize一致')
-            self.log.info('开始检查库')
-            if self.pageSize == None:
+            elif interfacetype == 'updateprocess':
+                # 更新流程接口校验,只检查所有字段数据是否和修改字段数据一致
                 pass
-            self.log.warring('没有设置校验场景,人工检查')
-            return True
+
+            elif interfacetype == 'updatestatus':
+                # 更新流程状态接口,检查修改id的status状态字段
+                self.log.debug('更新流程状态接口,检查修改id的status状态字段')
+                self.log.info('开始检查库')
+                fetstatus = self.PySQL.fetchall(sql="select status from toc_global_setting_process where id='{}'".format(self.id))
+                if fetstatus == self.status:
+                    self.log.info('status字段状态与data传入一致')
+                    return True
+                else:
+                    self.log.error('status字段状态与data传入一致,库中status={},data传入status={}'.format(fetstatus, self.status))
+                    return False
+            elif interfacetype == 'queryPage':
+                # 分页查询接口,检查list长度是否与data传入pageSize一致
+                self.log.debug('分页查询接口,检查list长度是否与data传入pageSize一致')
+                self.log.info('开始检查库')
+                if self.pageSize == None:
+                    pass
+                self.log.warring('没有设置校验场景,人工检查')
+                return True
+        else:
+            self.log.debug('接口响应返回失败,不执行调用接口后数据库检查')
 
 
 def getinputdata(type, case, **kwargs):
@@ -254,7 +257,7 @@ def getinputdata(type, case, **kwargs):
         elif case == 'status_is_null':
             inputdata['status'] = None
         elif case == 'comment_is_null':
-            inputdata['commet'] = None
+            inputdata['comment'] = None
         return type, inputdata
     # 修改流程
     elif type == 'updateprocess':
@@ -325,6 +328,7 @@ def runtest():
     仔猪断奶：PIGLET_WEANING
     位置变动(转栏)：NORMAL_LOCATION_CHANGE
     '''
+    log = Logging()
     # 流程管理code码
     code_alldict = ('ACCURATE_MATING', 'NORMAL_MATING', 'ROUGH_MATING', 'NORMAL_PREFARROW', 'NORMAL_BACKFAT', 'NORMAL_CULLING',
                     'SOW_DEATH', 'PIGLET_DEATH', 'NORMAL_FARROW', 'NORMAL_PREGNANCY_DIAGNOSIS', 'SOW_HEALTH',
@@ -336,22 +340,32 @@ def runtest():
     inputdata = {'id': None, 'name': '新增流程测试', 'code': inputcode, 'nodeSetting': '开始-选猪精-配种-总结',
                  'status': 'ENABLE', 'comment': '这是新增流程的描述内容', 'pageNum': None, 'pageSize': None}
 
-    test = getinputdata(type='addprocess', case='smoke', **inputdata)
+    # test = getinputdata(type='addprocess', case='smoke', **inputdata)     # 新增流程smoke测试场景<code存在和不存在两种场景>
+    # test = getinputdata(type='addprocess', case='name_is_null', **inputdata)      # 新增流程name为空测试场景
+    # test = getinputdata(type='addprocess', case='code_is_null', **inputdata)      # 新增流程code为空测试场景
+    # test = getinputdata(type='addprocess', case='nodeSetting_is_null', **inputdata)  # 新增流程nodeSetting为空测试场景
+    # test = getinputdata(type='addprocess', case='status_is_null', **inputdata)  # 新增流程status为空测试场景
+    test = getinputdata(type='addprocess', case='comment_is_null', **inputdata)  # 新增流程comment为空测试场景
     interfacetype = test[0]     # 流程接口类型
     interfacedata = test[1]     # 流程接口传入参数
+    log.info('调用接口传入data={}'.format(interfacedata))
     # 调用接口方法
     testprocess = ProcessAPI(interfacedata)
     rspjson = testprocess.run_case(interfacetype)
-    if rspjson:
+    if rspjson['error_code'] == 0:
         # 调用校验检查方法
         testprocess.after_run_check(rsp=rspjson, interfacetype=interfacetype)
-        return rspjson
+        log.info('接口响应返回成功')
+        log.info('接口返回内容:{}'.format(rspjson))
+        return True
+    else:
+        log.debug('接口响应返回失败,不调用数据库校验检查方法')
+        log.error('接口返回内容:{}'.format(rspjson))
+        return False
+
 
 if __name__ == '__main__':
     run = runtest()
-    print(run)
-    # test = PySQLDB()
-    # countcode = test.fetchall(sql="select code from toc_global_setting_process where code='ccc';")
-    # print(countcode)
-    # test.closedb()
+
+
 
