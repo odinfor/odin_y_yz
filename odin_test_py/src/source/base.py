@@ -35,6 +35,7 @@ class Config():
             conf.read(config, encoding='utf-8')
 
             # config.ini文件配置
+            self.operating_environment = conf.get('dir_base', 'operating_environment')          # 运行环境
             self.testhost = os.path.join(PROJECT_DIR, conf.get('dir_base', 'host_test'))        # 测试接口host
             self.log_dir = os.path.join(PROJECT_DIR, conf.get('dir_base', 'log_dir'))           # 日志文件路径
             self.refdata_dir = os.path.join(PROJECT_DIR, conf.get('dir_base', 'refdata_dir'))   # 配置文件路径
@@ -43,12 +44,29 @@ class Config():
             # zookeeper配置
             self.zkp_host = conf.get('zookeeper_base', 'zkp_host')  # zookeeper host地址
 
+            # url host
+            self.dev_host = conf.get('operating_base', 'dev_host')
+            self.test_host = conf.get('operating_base', 'test_host')
+            self.local_host = conf.get('operating_base', 'local_host')
+
             # 预留db配置
-            self.db_host = conf.get('db_base', 'db_host')           # db host地址
-            self.db_prot = conf.get('db_base', 'db_port')           # db 端口
-            self.db_username = conf.get('db_base', 'db_username')   # db 用户名
-            self.db_password = conf.get('db_base', 'db_password')   # db 密码
-            self.db_name = conf.get('db_base', 'db_name')           # 数据库名称
+            self.db_local_host = conf.get('db_local_base', 'db_local_host')           # db host地址
+            self.db_local_port = conf.get('db_local_base', 'db_local_port')           # db 端口
+            self.db_local_username = conf.get('db_local_base', 'db_local_username')   # db 用户名
+            self.db_local_password = conf.get('db_local_base', 'db_local_password')   # db 密码
+            self.db_local_name = conf.get('db_local_base', 'db_local_name')           # 数据库名称
+
+            self.db_test_host = conf.get('db_other_base', 'db_test_host')           # db host地址
+            self.db_test_port = conf.get('db_other_base', 'db_test_port')           # db 端口
+            self.db_test_username = conf.get('db_other_base', 'db_test_username')   # db 用户名
+            self.db_test_password = conf.get('db_other_base', 'db_test_password')   # db 密码
+            self.db_test_name = conf.get('db_other_base', 'db_test_name')           # 数据库名称
+
+            self.db_dev_host = conf.get('db_other_base', 'db_dev_host')           # db host地址
+            self.db_dev_port = conf.get('db_other_base', 'db_dev_port')           # db 端口
+            self.db_dev_username = conf.get('db_other_base', 'db_dev_username')   # db 用户名
+            self.db_dev_password = conf.get('db_other_base', 'db_dev_password')   # db 密码
+            self.db_dev_name = conf.get('db_other_base', 'db_dev_name')           # 数据库名称
 
         else:
             raise Exception("缺少config.ini文件")
