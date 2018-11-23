@@ -12,6 +12,7 @@ from source.base import Logging, Config
 import pymysql
 import os
 import json
+import requests
 
 
 
@@ -128,13 +129,18 @@ class TestTenantSetting():
         except IOError:
             raise IOError
         else:
+            config_info_list = []
             for line in info:
-                if line.startswith('#'):
-                    info.remove(line)
-            pass
+                if not line.startswith('#'):
+                    # 拆分字符串
+                    list1 = line.split(',')
+                    # 字符串转字典
+                    dict1 = json.loads(list1[2])
+                    list1[2] = dict1
+                    config_info_list.append(list1)
         finally:
             runfile.close()
-        return info
+        return config_info_list
 
     def get_data_info(self, interfacetype, casename='smoke', **kwargs):
         """
@@ -189,25 +195,92 @@ class TestTenantSetting():
                 data['code'] = None
             return data
 
-
-
-    def test_systemmanage_gettasksetting(self, casename):
+    def login_yunxi(self):
         """
-        系统管理模块-全局配置;1.1获取任务项配置
+        # 登录云徙
+        @:return auth
+        """
+        url = 'http://test.yingzi.com//huieryun-identity/api/v1/auth/yingzi/user/breeding/auth'
+        headers = {'Content-Type': 'x-www-form-urlencoded'}
+        data = {'userCode': 'jgs2',
+                'userPassword': 'eXo4ODg4ODg',
+                'loginType': 'nameMobile',
+                'trench': 'pc',
+                'loginFlag': 1,
+                'timestamp': 1541574621568}
+
+        rsp = requests.post(url, data, headers)
+        try:
+            rsp.raise_for_status()
+        except Exception as e:
+            print("云徙登录响应返回异常:{}".format(e))
+        else:
+            auth = rsp.json()['data']['auth']
+            return auth
+
+    def get_operationUnitId(self):
+        """
+        # 调用人力中心接口,获取operationUnitId
         :return:
         """
-        strtuple = ('http://', self.host, self.curl, casename)
-        url = ''.join(strtuple)
+        operationUnitId = None
+        return operationUnitId
+
+    # def test_systemmanage_gettasksetting(self, casename):
+    #     """
+    #     系统管理模块-全局配置;1.1获取任务项配置
+    #     :return:
+    #     """
+    #     strtuple = ('http://', self.host, self.curl, casename)
+    #     url = ''.join(strtuple)
+
+    def run_testcase(self, interfacetype='queryPage', casename='smoke', needoperationUnitld=False):
+        """
+        # 调用测试接口请求
+        :param interfacetype:被测接口
+        :param casename:测试场景
+        :param needoperationUnitld:header头是否需要获取operationUnitId
+        :return:
+        """
+        # 组成请求头
+        getauth = self.login_yunxi()
+        headers = {'auth': getauth}
+        if needoperationUnitld:
+            getoperationUnitId = self.get_operationUnitId()
+            headers['operationUnitId'] = getoperationUnitId
+
+        # 请求data
+        data = self.get_data_info(interfacetype, casename)
+        # 请求url
+        url = 'http://{}{}{}'.format(self.host, self.curl, interfacetype)
+        # 发送接口请求
+        rsp = requests.post(url=url, data=data, headers=headers)
+        try:
+            rsp.raise_for_status()
+        except Exception as e:
+            raise e
+        else:
+            assert rsp.json()['error_code'] == 0
+            assert rsp.json()['error_msg'] == 'SUCCESS'
 
 
+
+def main():
+    """# 运行套件函数"""
+    run_test = TestTenantSetting()
+    # 获取system_manage_run.txt文件配置列表
+    config_info = run_test.get_run_config_info()
+    # 获取headers需要字段
+    auth = run_test.login_yunxi()
+    operationUnitId = run_test.get_operationUnitId()
+    # 批量执行
+    for info in config_info:
+        # 组装不同接口类型不同测试场景下的data
+        data = run_test.get_data_info(interfacetype=info[0], casename=info[1], **info[2])
+        # 调用接口请求
+        run_test.run_testcase(interfacetype=info[0], casename=info[1], **data)
 
 
 
 if __name__ == '__main__':
-    run = TestTenantSetting()
-    run.test_systemmanage_gettasksetting(casename='queryPage')
-    file = run.get_run_info()
-    print(file)
-    print(type(file))
-    # if file[0] == 'gettask,queryPage\n':
-    #     print('222')
+    main()
