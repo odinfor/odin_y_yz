@@ -2,7 +2,7 @@
 from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, Text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from src.source.base import Config, Base_Method
+from source.base import Config, Base_Method
 
 base = declarative_base()   # 创建基类
 basemethod = Base_Method().get_excel_content()

@@ -391,7 +391,9 @@ class Base_Method():
 
 
 if __name__ == "__main__":
-    test = Base_Method()
-    exceldict = test.get_excel_content()
-    print(exceldict)
-
+    # test = Base_Method()
+    # exceldict = test.get_excel_content()
+    # print(exceldict)
+    a = 'aaa'
+    c = ('g', '1')
+    print(a.join(c))

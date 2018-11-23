@@ -1,0 +1,3 @@
+gettask,queryPage
+gettask,updateStatus
+#hjj
