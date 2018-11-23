@@ -6,13 +6,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import pymysql
 import sys
-import os
-curPath = os.path.abspath(os.path.dirname(__file__))
-print('curPath:', curPath)
-rootPath = os.path.split(curPath)[0]
-sys.path.append(rootPath)
-sys.path.remove("/Users/mac/Documents/odin_test/odin_test_py/src/source/test_TaskOs_interface.py")
-from base import Logging, Config
+sys.path.append('..')
+from ..source.base import Logging, Config
 
 
 
