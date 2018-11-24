@@ -121,7 +121,7 @@ class TestTenantSetting():
     def get_run_config_info(self):
         """
         # 读取system_manage_run.txt文件,#开头的行过滤
-        :return:返回需要执行的用例场景
+        :return:生成器,返回需要执行的用例场景
         """
         file = os.path.join(self.config.refdata_dir, 'system_manage_run.txt')
         try:
@@ -130,7 +130,6 @@ class TestTenantSetting():
         except IOError:
             raise IOError
         else:
-            config_info_list = []
             for line in info:
                 if not line.startswith('#'):
                     # 拆分字符串
@@ -138,11 +137,7 @@ class TestTenantSetting():
                     # 字符串转字典
                     dict1 = json.loads(list1[3])
                     list1[3] = dict1
-                    config_info_list.append(list1)
                     yield list1
-        # finally:
-        #     runfile.close()
-        # return config_info_list
 
     def get_data_info(self, interfacetype, casename='smoke', **kwargs):
         """
@@ -384,7 +379,7 @@ def cut_off_rule(func):
         log.info('*'*30 + '执行:{}方法'.format(main.__name__) + '*'*30)
         func()
         log.info('='*32 + '这是分界线' + '='*32)
-        log.info('*'*30 + '结束:{}方法'.format(main.__name__) + '*'*30)
+        log.info('*'*30 + '结束:{}方法'.format(main.__name__) + '*'*30 + '\n')
     return warper
 
 
