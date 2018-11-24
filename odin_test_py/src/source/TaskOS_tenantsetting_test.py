@@ -144,23 +144,15 @@ class TestTenantSetting():
         # 生成租户管理任务配置模块各个接口不同场景下返回的入参
         :param interfacetype:接口
         :param casename:场景
+        :param kwargs:config入参
         :return:接口入参
         """
-        '''
-        流程管理code字段码
-        精准配种：ACCURATE_MATING    普通配种：NORMAL_MATING  粗放配种：ROUGH_MATING   上产床：NORMAL_PREFARROW
-        背膘：NORMAL_BACKFAT   母猪淘汰：NORMAL_CULLING     母猪死亡：SOW_DEATH  小猪死亡：PIGLET_DEATH
-        分娩：NORMAL_FARROW    孕检：NORMAL_PREGNANCY_DIAGNOSIS   母猪保健：SOW_HEALTH     小猪保健：PIGLET_HEALTH
-        发情鉴定：NORMAL_HEAT    母猪免疫：SOW_IMMUNE     小猪免疫：PIGLET_IMMUNE      母猪断奶：NORMAL_WEANING
-        仔猪断奶：PIGLET_WEANING     位置变动(转栏)：NORMAL_LOCATION_CHANGE
-        '''
         # taskcode码
         task_code_dict = ('NC_WeanedWeight', 'NC_WeanedBackfat')
         businessCode = kwargs['businessCode'] if 'businessCode' in kwargs.keys() else None      # 业务编码,不传则查全部
         name = kwargs['name'] if 'name' in kwargs.keys() else None      # 名称
         page = kwargs['page'] if 'page' in kwargs.keys() else None  # 页码
         page_size = kwargs['page_size'] if 'page_size' in kwargs.keys() else 1    # 每页查询数量,默认20
-        # code = kwargs['code'] if 'code' in kwargs.keys() else random.choice(code_alldict)        # 任务编码
         status = 'ENABLE' if 'status' in kwargs.keys() else 'ENABLE'    # 状态（ENABLE-启用, DISABLE-禁用）
         # 任务编码,特殊处理,支持传random随机生成code
         if 'code' in kwargs.keys():
@@ -321,7 +313,7 @@ class TestTenantSetting():
     def get_operationUnitId(self):
         """
         # 调用人力中心接口,获取operationUnitId
-        :return:
+        :return:operationUnitId
         """
         operationUnitId = None
         return operationUnitId
@@ -339,8 +331,9 @@ class TestTenantSetting():
         # 调用测试接口请求
         :param interfacetype:被测接口
         :param data:入参
+        :param casename:接口场景<smoke, *_is_null, *_long_outside_*, usecofig>
         :param needoperationUnitld:header头是否需要获取operationUnitId
-        :return:
+        :return:无返回
         """
         # 当前执行任务说明
         self.log.info('执行用例:{}'.format(comment))
@@ -402,8 +395,6 @@ def main():
         data = run_test.get_data_info(interfacetype=info[1], casename=info[2], **info[3])
         # 调用接口请求
         run_test.run_testcase(urlpart=info[0], data=data, interfacetype=info[1], casename=info[2], comment=info[4])
-
-
 
 
 if __name__ == '__main__':
