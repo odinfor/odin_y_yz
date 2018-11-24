@@ -8,12 +8,13 @@
 
 import sys
 sys.path.append('..')
+# from .base import Logging, Config
 from source.base import Logging, Config
 import pymysql
 import os
 import json
 import requests
-
+import random
 
 
 class PySQLDB():
@@ -50,7 +51,7 @@ class PySQLDB():
             raise Exception('config.ini文件operating_environment字段配置错误')
         # self.dbinfo = get_db_info()
         # 使用pymysql创建连接
-        self.db = pymysql.connect(host=db_host, port=3306, user=db_user,password=db_password, db=db_name)
+        self.db = pymysql.connect(host=db_host, port=3306, user=db_user, password=db_password, db=db_name)
         # self.db = pymysql.connect(host='172.18.100.142', port=3306, user='yz_dev_taskorchestration', password='n2Q0eclF2CJFtFMr', db='yz_dev_taskorchestration')
         # 创建游标
         self.cursor = self.db.cursor()
@@ -104,7 +105,7 @@ class TestTenantSetting():
         self.pysql = PySQLDB()
 
         # 常量属性
-        self.curl = '/yingzi-app-taskorchestration/api/v1/tenantsetting/task/'   # 接口url
+        self.curl = '/api/v1/tenantsetting/task/'   # 接口url
         self.success_code = 0           # 成功返回code
         self.success_msg = 'SUCCESS'    # 成功返回msg
         # host地址
@@ -133,14 +134,15 @@ class TestTenantSetting():
             for line in info:
                 if not line.startswith('#'):
                     # 拆分字符串
-                    list1 = line.split(',')
+                    list1 = line.split(';')
                     # 字符串转字典
-                    dict1 = json.loads(list1[2])
-                    list1[2] = dict1
+                    dict1 = json.loads(list1[3])
+                    list1[3] = dict1
                     config_info_list.append(list1)
-        finally:
-            runfile.close()
-        return config_info_list
+                    yield list1
+        # finally:
+        #     runfile.close()
+        # return config_info_list
 
     def get_data_info(self, interfacetype, casename='smoke', **kwargs):
         """
@@ -149,50 +151,153 @@ class TestTenantSetting():
         :param casename:场景
         :return:接口入参
         """
+        '''
+        流程管理code字段码
+        精准配种：ACCURATE_MATING    普通配种：NORMAL_MATING  粗放配种：ROUGH_MATING   上产床：NORMAL_PREFARROW
+        背膘：NORMAL_BACKFAT   母猪淘汰：NORMAL_CULLING     母猪死亡：SOW_DEATH  小猪死亡：PIGLET_DEATH
+        分娩：NORMAL_FARROW    孕检：NORMAL_PREGNANCY_DIAGNOSIS   母猪保健：SOW_HEALTH     小猪保健：PIGLET_HEALTH
+        发情鉴定：NORMAL_HEAT    母猪免疫：SOW_IMMUNE     小猪免疫：PIGLET_IMMUNE      母猪断奶：NORMAL_WEANING
+        仔猪断奶：PIGLET_WEANING     位置变动(转栏)：NORMAL_LOCATION_CHANGE
+        '''
+        # taskcode码
+        task_code_dict = ('NC_WeanedWeight', 'NC_WeanedBackfat')
+        businessCode = kwargs['businessCode'] if 'businessCode' in kwargs.keys() else None      # 业务编码,不传则查全部
+        name = kwargs['name'] if 'name' in kwargs.keys() else None      # 名称
         page = kwargs['page'] if 'page' in kwargs.keys() else None  # 页码
-        page_size = kwargs['page_size'] if 'page_size' in kwargs.keys() else None    # 每页查询数量,默认20
-        code = kwargs['code'] if 'code' in kwargs.keys() else None        # 任务编码
-        status = 'ENABLE' if 'status' in kwargs.keys() else None    # 状态（ENABLE-启用, DISABLE-禁用）
+        page_size = kwargs['page_size'] if 'page_size' in kwargs.keys() else 1    # 每页查询数量,默认20
+        # code = kwargs['code'] if 'code' in kwargs.keys() else random.choice(code_alldict)        # 任务编码
+        status = 'ENABLE' if 'status' in kwargs.keys() else 'ENABLE'    # 状态（ENABLE-启用, DISABLE-禁用）
+        # 任务编码,特殊处理,支持传random随机生成code
+        if 'code' in kwargs.keys():
+            if kwargs['code'] == 'random':
+                code = random.choice(task_code_dict)
+            else:
+                code = kwargs['code']
+        else:
+            code = None
+
+        """# 以下字段只在2. 任务配置模块-2.4更新配置接口中用到"""
+        configType = kwargs['configType'] if 'configType' in kwargs.keys() else None    # 任务项配置类型，TENANT：租户，OPERATION_UNIT:管理单元
+        locationGroup = kwargs['locationGroup'] if 'locationGroup' in kwargs.keys() else None   # 任务组合规则，单个任务位置,ROOM：舍，FARM：场
+        timeGroup = kwargs['timeGroup'] if 'timeGroup' in kwargs.keys() else None   # 任务组合规则，单个任务时间，DAY：同一天，HALFDAY：分上下午（半天
+        taskDisplayTimeRange = kwargs['taskDisplayTimeRange'] if 'taskDisplayTimeRange' in kwargs.keys() else None  # 显示计划任务的时间范围，0：当天，1：明天，以此类推
+        sowMaxCount = kwargs['sowMaxCount'] if 'sowMaxCount' in kwargs.keys() else None     # -1：不限制，1：1头母猪，以此类推
+        processCode = kwargs['processCode'] if 'processCode' in kwargs.keys() else None     # 任务流程编码
+        unexecuteAlarmTimeOut = kwargs['unexecuteAlarmTimeOut'] if 'unexecuteAlarmTimeOut' in kwargs.keys() else None   # 任务超过X小时未执行产生报警
+        unexecuteUpgradeAlarmTimeOut = kwargs['unexecuteUpgradeAlarmTimeOut'] if 'unexecuteUpgradeAlarmTimeOut' in kwargs.keys() else None  # 任务超过X小时未执行升级报警
+        executeAlarmTimeOut = kwargs['executeAlarmTimeOut'] if 'executeAlarmTimeOut' in kwargs.keys() else None     # 任务执行超过X小时未完成产生报警
+        targetCodeList = kwargs['targetCodeList'] if 'targetCodeList' in kwargs.keys() else None    # 目标编码
+        capabilityCodeList = kwargs['capabilityCodeList'] if 'capabilityCodeList' in kwargs.keys() else None    # 能力编码
 
         # 1.系统管理模块-1.1获取任务项配置接口
         if interfacetype == 'queryPage':
-            data = {'page': page, 'page_size': page_size}
+            data = {'code': code, 'businessCode': businessCode, 'name': name, 'status': status,
+                    'page': page, 'page_size': page_size}
             if casename == 'smoke':
                 pass
-            elif casename == 'page_is_null':
-                data['page'] = None
-            elif casename == 'page_size_is_null':
-                data['page_size'] = None
+            # 使用配置入参
+            elif casename == 'useconfig':
+                data = kwargs
+            # 设置入参字段为None
+            elif '_is_null' in casename:
+                caselist = casename.split('_is_null')
+                data[caselist[0]] = None
+            # 设置入参字段超长
+            elif '_long_outside_' in casename:
+                caselist = casename.split('_long_outside_')
+                data[caselist[0]] = caselist[0] + 's'*int(caselist[1])
+            self.log.info('执行:{}方法,\n当前接口类型interfacetype:{},\n测试场景interfacetype:{}\n返回入参data={}'.format(
+                self.get_data_info.__name__, interfacetype, casename,  data))
             return data
-        # 1.系统管理模块-1.2更新任务状态接口
-        elif interfacetype == 'updateStatus':
-            data = {'code': code, 'status': status}
-            if casename == 'smoke':
-                pass
-            elif casename == 'code_is_null':
-                data['code'] = None
-            elif casename == 'status_is_null':
-                data['status'] = None
-            return data
-        # 2.任务配置模块-2.1获取配置任务项列表
-        elif interfacetype =='queryEnabledList':
+        # 1.系统管理模块-1.2查询业务下拉了列表
+        elif interfacetype == 'queryBusinessList':
             data = {}
+            self.log.info('执行:{}方法,\n当前接口类型interfacetype:{},\n测试场景interfacetype:{}\n返回入参data={}'.format(
+                self.get_data_info.__name__, interfacetype, casename,  data))
+        # 1.系统管理模块-1.3更新任务状态接口
+        elif interfacetype == 'updateStatus':
+            data = {'code': 'BC_Insemination', 'status': status}
+            if casename == 'smoke':
+                pass
+            # 使用配置入参
+            elif casename == 'useconfig':
+                data = kwargs
+                # 设置入参字段为None
+            elif '_is_null' in casename:
+                caselist = casename.split('_is_null')
+                data[caselist[0]] = None
+            # 设置入参字段超长
+            elif '_long_outside_' in casename:
+                caselist = casename.split('_long_outside_')
+                data[caselist[0]] = caselist[0] + 's'*int(caselist[1])
+            self.log.info('执行:{}方法,\n当前接口类型interfacetype:{},\n测试场景interfacetype:{}\n返回入参data={}'.format(
+                self.get_data_info.__name__, interfacetype, casename,  data))
+            return data
+        # 1.系统管理模块-1.4任务项配置恢复默认
+        elif interfacetype == 'resetStatus':
+            data = {}
+            self.log.info('执行:{}方法,\n当前接口类型interfacetype:{},\n测试场景interfacetype:{}\n返回入参data={}'.format(
+                self.get_data_info.__name__, interfacetype, casename,  data))
+            return data
+
+        # 2.任务配置模块-2.1获取配置任务项列表
+        elif interfacetype == 'queryEnabledList':
+            data = {}
+            self.log.info('执行:{}方法,\n当前接口类型interfacetype:{},\n测试场景interfacetype:{}\n返回入参data={}'.format(
+                self.get_data_info.__name__, interfacetype, casename,  data))
             return data
         # 2.任务配置模块-2.2获取任务配置内容模板
-        elif interfacetype == 'getTemplate':
+        elif interfacetype == 'queryConfigTemplate':
             data = {'code': code}
             if casename == 'smoke':
                 pass
+            # 使用配置入参
+            elif casename == 'useconfig':
+                data = kwargs
             elif casename == 'code_is_null':
                 data['code'] = None
+            elif '_long_outside_' in casename:
+                caselist = casename.split('_long_outside_')
+                data[caselist[0]] = caselist[0] + 's'*int(caselist[1])
+            self.log.info('执行:{}方法,\n当前接口类型interfacetype:{},\n测试场景interfacetype:{}\n返回入参data={}'.format(
+                self.get_data_info.__name__, interfacetype, casename,  data))
             return data
         # 2.任务配置模块-2.3获取任务配置内容
-        elif interfacetype == 'getConfig':
+        elif interfacetype == 'queryConfig':
             data = {'code': code}
             if casename == 'smoke':
                 pass
+            # 使用配置入参
+            elif casename == 'useconfig':
+                data = kwargs
             elif casename == 'code_is_null':
                 data['code'] = None
+            elif '_long_outside_' in casename:
+                caselist = casename.split('_long_outside_')
+                data[caselist[0]] = caselist[0] + 's'*int(caselist[1])
+            self.log.info('执行:{}方法,\n当前接口类型interfacetype:{},\n测试场景interfacetype:{}\n返回入参data={}'.format(
+                self.get_data_info.__name__, interfacetype, casename,  data))
+            return data
+        # 2.任务配置模块-2.4更新配置
+        elif interfacetype == 'updateConfig':
+            data = {'code': code, 'configType': configType, 'locationGroup': locationGroup, 'timeGroup': timeGroup,
+                    'taskDisplayTimeRange': taskDisplayTimeRange, 'sowMaxCount': sowMaxCount, 'processCode': processCode,
+                    'unexecuteAlarmTimeOut': unexecuteAlarmTimeOut, 'unexecuteUpgradeAlarmTimeOut': unexecuteUpgradeAlarmTimeOut,
+                    'executeAlarmTimeOut': executeAlarmTimeOut, 'targetCodeList': targetCodeList,
+                    'capabilityCodeList': capabilityCodeList}
+            if casename == 'smoke':
+                pass
+            # 使用配置入参
+            elif casename == 'useconfig':
+                data = kwargs
+            elif '_is_null' in casename:
+                caselist = casename.split('_is_null')
+                data[caselist[0]] = None
+            elif '_long_outside_' in casename:
+                caselist = casename.split('_long_outside_')
+                data[caselist[0]] = caselist[0] + 's'*int(caselist[1])
+            self.log.info('执行:{}方法,\n当前接口类型interfacetype:{},\n测试场景interfacetype:{}\n返回入参data={}'.format(
+                self.get_data_info.__name__, interfacetype, casename,  data))
             return data
 
     def login_yunxi(self):
@@ -234,51 +339,75 @@ class TestTenantSetting():
     #     strtuple = ('http://', self.host, self.curl, casename)
     #     url = ''.join(strtuple)
 
-    def run_testcase(self, interfacetype='queryPage', casename='smoke', needoperationUnitld=False):
+    def run_testcase(self, urlpart, data, interfacetype='queryPage', casename='smoke', needoperationUnitld=False, comment='这是默认测试场景说明'):
         """
         # 调用测试接口请求
         :param interfacetype:被测接口
-        :param casename:测试场景
+        :param data:入参
         :param needoperationUnitld:header头是否需要获取operationUnitId
         :return:
         """
+        # 当前执行任务说明
+        self.log.info('执行用例:{}'.format(comment))
         # 组成请求头
         getauth = self.login_yunxi()
-        headers = {'auth': getauth}
+        headers = {'auth': getauth, 'Content-Type': 'application/json'}
         if needoperationUnitld:
             getoperationUnitId = self.get_operationUnitId()
             headers['operationUnitId'] = getoperationUnitId
 
-        # 请求data
-        data = self.get_data_info(interfacetype, casename)
         # 请求url
-        url = 'http://{}{}{}'.format(self.host, self.curl, interfacetype)
+        url = 'http://{}{}{}'.format(self.host, urlpart, interfacetype)
         # 发送接口请求
-        rsp = requests.post(url=url, data=data, headers=headers)
+        rsp = requests.post(url=url, data=json.dumps(data), headers=headers)
         try:
             rsp.raise_for_status()
         except Exception as e:
             raise e
         else:
-            assert rsp.json()['error_code'] == 0
-            assert rsp.json()['error_msg'] == 'SUCCESS'
+            self.log.info('执行{}, \n接口请求地址:{},\n请求入参data:{},\n接口返回rsp={}'.format(self.run_testcase.__name__,
+                                                                           url, data, rsp.json()))
+            if casename == 'smoke' or casename == 'useconfig':
+                assert rsp.json()['error_code'] == 0
+                assert rsp.json()['error_msg'] == 'SUCCESS' or rsp.json()['error_msg'] == 'success'
+            elif casename.find('_long_outside_') > 0:
+                assert rsp.json()['error_code'] == 30100
+            elif casename.find('_is_null') > 0:
+                assert rsp.json()['error_code'] == 30100
 
 
+def cut_off_rule(func):
+    log = Logging()
 
+    def warper():
+        log.info('='*32 + '这是分界线' + '='*32)
+        log.info('*'*30 + '执行:{}方法'.format(main.__name__) + '*'*30)
+        func()
+        log.info('='*32 + '这是分界线' + '='*32)
+        log.info('*'*30 + '结束:{}方法'.format(main.__name__) + '*'*30)
+    return warper
+
+
+@cut_off_rule
 def main():
     """# 运行套件函数"""
+    # log = Logging()
     run_test = TestTenantSetting()
     # 获取system_manage_run.txt文件配置列表
     config_info = run_test.get_run_config_info()
+
     # 获取headers需要字段
     auth = run_test.login_yunxi()
     operationUnitId = run_test.get_operationUnitId()
     # 批量执行
     for info in config_info:
+        # log.info('='*30 + '这是分界线' + '*'*30)
+        # log.info('*'*30 + '执行:{}方法'.format(main.__name__) + '*'*30)
         # 组装不同接口类型不同测试场景下的data
-        data = run_test.get_data_info(interfacetype=info[0], casename=info[1], **info[2])
+        data = run_test.get_data_info(interfacetype=info[1], casename=info[2], **info[3])
         # 调用接口请求
-        run_test.run_testcase(interfacetype=info[0], casename=info[1], **data)
+        run_test.run_testcase(urlpart=info[0], data=data, interfacetype=info[1], casename=info[2], comment=info[4])
+
 
 
 
