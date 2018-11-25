@@ -374,20 +374,217 @@ class Base_Method():
             data = str(e)
 
 
+class UseingExcel:
+    """ Excel 文件操作类"""
+    log = Logging()
+    config = Config()
+    apifile = os.path.join(config.refdata_dir, 'test_api_resquest.xls')
 
+    def open_excel(self):
+        """#打开test_api_resquest.xlsx"""
+        try:
+            data = xlrd.open_workbook(self.apifile)
+        except Exception as e:
+            self.log.error(u"发现异常:%s" % e)
+        else:
+            return data
 
+    def excel_byindex(self, colnameindex=1, byindex=0):
+        """
+        #根据索引获取Excel表中的数据
+        #colnameindex:表头所在的行 ，byindex:表的索引
+        :param colnameindex:表头列名所在行的所以
+        :param byindex:表的索引
+        """
+        data = self.open_excel()
+        # 表的sheet
+        table = data.sheets()[byindex]
+        # 表的行与列
+        nrows = table.nrows
+        ncols = table.ncols
+        # 表某一行数据
+        colsname = table.row_values(colnameindex)
 
+        list = []
+        for rownum in range(2, nrows):
+            row = table.row_values(rownum)
+            if row:
+                app = {}
+                for i in range(len(colsname)):
+                    app[colsname[i]] = row[i]
+                list.append(app)
+        return list
 
+    def excel_table_byname(self, colnameindex=1, by_name=u'test_api'):
+        """
+        #根据名称获取Excel表格中的数据
+        :param colnameindex:表头列名所在行的所以
+        :param by_name:Sheet1名称
+        """
+        data = self.open_excel()
+        table = data.sheet_by_name(by_name)
+        # 行数
+        nrows = table.nrows
+        print
+        nrows
+        # 某一行数据
+        colnames = table.row_values(colnameindex)
+        list = []
+        for rownum in range(2, nrows):
+            row = table.row_values(rownum)
+            if row:
+                app = {}
+                for i in range(len(colnames)):
+                    app[colnames[i]] = row[i]
+                    list.append(app)
+        return list
 
+    def set_style(self, patternid, fontid, bold=False, center=None, wrap=0):
+        """
+        #初始化样式
+        :param patternid:单元格背景颜色id
+        ":param fontid:字体颜色id
+        :param bold:字体是否加粗<默认不加粗>
+        :param cneter:单元格居中方式,<默认不设置,'horz':水平居中,'vert':垂直居中,'all':水平和垂直居中>
+        """
 
+        # 单元格背景颜色设置为黑色
+        pattern = xlwt.Pattern()  # 创建一个模式
+        pattern.pattern = xlwt.Pattern.SOLID_PATTERN  # 设置其模式为实型
+        # 设置单元格背景颜色 0 = Black, 1 = White, 2 = Red, 3 = Green, 4 = Blue, 5 = Yellow, 6 = Magenta,  the list goes on...
+        pattern.pattern_fore_colour = patternid
+        # 单元格字体颜色
+        fnt = xlwt.Font()  # 创建一个文本格式，包括字体、字号和颜色样式特性
+        fnt.name = u'微软雅黑'  # 设置其字体为微软雅黑
+        fnt.colour_index = fontid  # 设置其字体颜色
+        fnt.bold = bold  # 设置其字体加粗
 
+        # 设置居中格式
+        alignment = xlwt.Alignment()
+        if center == None:
+            pass
+        elif center == 'horz':
+            alignment.horz = xlwt.Alignment.HORZ_CENTER  # 水平居中
+        elif center == 'vert':
+            alignment.vert = xlwt.Alignment.VERT_CENTER  # 垂直居中
+        elif center == 'all':
+            alignment.horz = xlwt.Alignment.HORZ_CENTER  # 水平居中
+            alignment.vert = xlwt.Alignment.VERT_CENTER  # 垂直居中
 
+        # 设置单元格边框,DASHED:虚线/NO_LINE:没有/THIN:实线
+        broders = xlwt.Borders()
+        broders.left = xlwt.Borders.THIN
+        broders.right = xlwt.Borders.THIN
+        broders.top = xlwt.Borders.THIN
+        broders.bottom = xlwt.Borders.THIN
+        # 边框颜色
+        broders.left_colour = 0x3A
+        broders.right_colour = 0x3A
+        broders.top_colour = 0x3A
+        broders.bottom_colour = 0x3A
 
+        # 设置自动换行
+        if wrap == 0:
+            pass
+        elif wrap == 1:
+            alignment.wrap = 1
 
+        style = xlwt.XFStyle()
+        # 将赋值好的模式参数导入Style
+        style.pattern = pattern
+        style.font = fnt
+        style.alignment = alignment
+        style.broders = broders
+        return style
 
-
-
-
+    def api_result_excel(self, explain, msg_request, msg_return, is_pass=[], check_explain=None,
+                         csvfile='test_api_resquest.xlsx'):
+        """
+        #接口执行结果写入excel文件
+        #explain:说明,msg_request:请求参数,msg_return:返回,is_pass:是否通过
+        #explain/msg_request/msg_return列表类型
+        """
+        # 接口执行结果写入文件路径
+        excel_dir = self.config.excel_dir + '\\' + 'api_result.xls'
+        try:
+            # 创建xls文件对象
+            wb = xlwt.Workbook(encoding='utf-8')
+            """
+            #打开excel文件
+            openfile = xlrd.open_workbook(excel_dir)
+            """
+        except Exception as e:
+            self.log.error(u"%s" % e)
+        else:
+            # 创建sheet
+            sheet1 = wb.add_sheet(u'api_results', cell_overwrite_ok=True)
+            """#第一行"""
+            # 写入单元格内容
+            sheet1.write_merge(0, 0, 0, 5, u"接口执行结果", self.set_style(21, 1, bold=True))
+            """#第二行"""
+            sheet1.write_merge(1, 1, 0, 5, u"使用get/post请求,打印返回", self.set_style(21, 1, bold=True))
+            """#第三行"""
+            # 标题行
+            row3 = ['ID', u'说明', u'请求参数', u'返回', u"是否通过", u"校验说明"]
+            for i in row3:
+                # 设置列宽
+                if row3.index(i) == 1:
+                    consol = sheet1.col(row3.index(i))
+                    consol.width = 256 * 40
+                if row3.index(i) == 2 or row3.index(i) == 3:
+                    consol = sheet1.col(row3.index(i))
+                    consol.width = 256 * 80
+                if row3.index(i) == 5:
+                    consol = sheet1.col(row3.index(i))
+                    consol.width = 256 * 50
+                sheet1.write(2, row3.index(i), i, self.set_style(20, 1, bold=True, center='horz'))
+            """#写入行"""
+            # 自增变量
+            indexid = 0
+            # 起始行
+            row_start = 2
+            # test_api_request.xlsx文件配置行数
+            data = xlrd.open_workbook(self.config.excel_dir + '\\' + csvfile)
+            table = data.sheets()[0]
+            nrows = table.nrows
+            while True:
+                indexid += 1
+                row_start += 1
+                if row_start > (len(msg_return) + 2):
+                    break
+                else:
+                    # caseid自增id写入
+                    sheet1.write(row_start, 0, indexid, self.set_style(1, 0, center='all'))
+                    # 写入说明
+                    sheet1.write(row_start, 1, explain[indexid - 1], self.set_style(1, 0, center='vert'))
+                    # 写入参数
+                    sheet1.write(row_start, 2, msg_request[indexid - 1], self.set_style(1, 0, center='vert', wrap=1))
+                    # 写入返回
+                    sheet1.write(row_start, 3, msg_return[indexid - 1], self.set_style(1, 0, center='vert', wrap=1))
+                    # 写入是否通过,通过则标绿色底色,未通过则标红色底色
+                    if is_pass == []:
+                        sheet1.write(row_start, 4, '', self.set_style(23, 0))
+                    else:
+                        if (indexid) > len(is_pass):
+                            raise (u"test_api_request.xlsx文件code字段有未填项")
+                        else:
+                            if is_pass[indexid - 1]:
+                                sheet1.write(row_start, 4, '√', self.set_style(3, 0, center='all'))
+                            elif is_pass[indexid - 1] == None:
+                                sheet1.write(row_start, 4, '', self.set_style(23, 0))
+                            else:
+                                sheet1.write(row_start, 4, '×', self.set_style(2, 0, center='all'))
+                    # 写入校验说明
+                    if check_explain == None:
+                        pass
+                    else:
+                        sheet1.write(row_start, 5, check_explain[indexid - 1],
+                                     self.set_style(1, 0, center='all', wrap=1))
+            try:
+                wb.save(excel_dir)
+            except Exception as e:
+                self.log.error(u"先关闭文件api_result.xls")
+                raise e
 
 
 if __name__ == "__main__":

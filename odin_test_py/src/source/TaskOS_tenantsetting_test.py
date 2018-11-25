@@ -6,16 +6,17 @@
 # @File    : TaskOS_tenantsetting_test.py
 # @Comment : 租户管理任务配置接口
 
-import sys
-sys.path.append('..')
-# from .base import Logging, Config
-from source.base import Logging, Config
 import pymysql
 import os
 import json
 import requests
 import random
 from functools import wraps
+import sys
+sys.path.append('..')
+# from .base import Logging, Config
+# from source.base import Logging, Config, UsingExcel
+from source.base import Logging, Config, UseingExcel
 
 
 def cut_off_rule(func):
@@ -400,6 +401,8 @@ def main():
     run_test = TestTenantSetting()
     # 获取system_manage_run.txt文件配置列表
     config_info = run_test.get_run_config_info()
+    # excel方法类
+    use_excel = UsingExcel()
 
     # 获取headers需要字段
     auth = run_test.login_yunxi()
