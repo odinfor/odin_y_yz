@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2018/11/23 上午11:01
 # @Author  : odin_y
-# @Site    : 
+# @Site    :
 # @File    : TaskOS_tenantsetting_test.py
 # @Comment : 租户管理任务配置接口
 
@@ -15,6 +15,34 @@ import os
 import json
 import requests
 import random
+from functools import wraps
+
+
+def cut_off_rule(func):
+    """# main方法装饰器"""
+    log = Logging()
+    def warper():
+        log.info('='*32 + '这是分界线' + '='*32)
+        log.info('*'*30 + '执行:{}方法'.format(main.__name__) + '*'*30)
+        func()
+        log.info('='*32 + '这是分界线' + '='*32)
+        log.info('*'*30 + '结束:{}方法'.format(main.__name__) + '*'*30 + '\n')
+    return warper
+
+
+def assertFail(function):
+    """# 执行run_testcase请求装饰器"""
+    log = Logging()
+    @wraps(function)
+    def wrapper(self, *args, **kwargs):
+
+        try:
+            function(self, *args, **kwargs)
+        except Exception as msg:
+            log.error('case error\n')
+        else:
+            log.info('case pass\n')
+    return wrapper
 
 
 class PySQLDB():
@@ -326,6 +354,7 @@ class TestTenantSetting():
     #     strtuple = ('http://', self.host, self.curl, casename)
     #     url = ''.join(strtuple)
 
+    @assertFail
     def run_testcase(self, urlpart, data, interfacetype='queryPage', casename='smoke', needoperationUnitld=False, comment='这是默认测试场景说明'):
         """
         # 调用测试接口请求
@@ -362,18 +391,6 @@ class TestTenantSetting():
                 assert rsp.json()['error_code'] == 30100
             elif casename.find('_is_null') > 0:
                 assert rsp.json()['error_code'] == 30100
-
-
-def cut_off_rule(func):
-    log = Logging()
-
-    def warper():
-        log.info('='*32 + '这是分界线' + '='*32)
-        log.info('*'*30 + '执行:{}方法'.format(main.__name__) + '*'*30)
-        func()
-        log.info('='*32 + '这是分界线' + '='*32)
-        log.info('*'*30 + '结束:{}方法'.format(main.__name__) + '*'*30 + '\n')
-    return warper
 
 
 @cut_off_rule

@@ -43,7 +43,8 @@
 #
 #gettask;queryPage;smoke;{"code":"NC_Weight","businessCode":"NC","name":"测试获取任务项配置","status":"ENABLE","page":1,"page_size":20}
 #gettask;queryBusinessList;smoke;{}
-#
+############################################################################
+############################################################################
 #/api/v1/tenantsetting/task/;queryEnabledList;smoke;{};#2. 任务配置模块-2.1 获取配置任务项列表-smoke
 #
 #/api/v1/taskconfig;queryConfigTemplate;useconfig;{"code":"BC"};#2. 任务配置模块-2.2 获取任务配置内容模板-smoke
@@ -55,3 +56,36 @@
 #
 #/api/v1/taskconfig/;updateConfig;useconfig;{"code":"BC"};#2. 任务配置模块-2.3 获取任务配置内容-smoke
 #/api/v1/taskconfig/;updateConfig;useconfig;{"code":"BC"};#2. 任务配置模块-2.3 获取任务配置内容-smoke
+############################################################################
+############################################################################
+#/api/v1/taskconfig/;updateConfig;smoke;{};#2. 任务配置模块-2.4 更新配置-smoke
+#
+#/api/v1/taskconfig/;updateConfig;operationUnitId_is_null;{};#2. 任务配置模块-2.4 更新配置-operationUnitId字段为空场景
+#/api/v1/taskconfig/;operationUnitId;code_is_null;{};#2. 任务配置模块-2.4 更新配置-code字段为空场景
+#/api/v1/taskconfig/;updateConfig;configType_is_null;{};#2. 任务配置模块-2.4 更新配置-configType字段为空场景
+#/api/v1/taskconfig/;updateConfig;locationGroup_is_null;{};#2. 任务配置模块-2.4 更新配置-locationGroup字段为空场景
+#/api/v1/taskconfig/;updateConfig;timeGroup_is_null;{};#2. 任务配置模块-2.4 更新配置-timeGroup字段为空场景
+#/api/v1/taskconfig/;updateConfig;taskDisplayTimeRange_is_null;{};#2. 任务配置模块-2.4 更新配置-taskDisplayTimeRange字段为空场景
+#/api/v1/taskconfig/;updateConfig;sowMaxCount_is_null;{};#2. 任务配置模块-2.4 更新配置-sowMaxCount字段为空场景
+#/api/v1/taskconfig/;updateConfig;processCode_is_null;{};#2. 任务配置模块-2.4 更新配置-processCode字段为空场景
+#/api/v1/taskconfig/;updateConfig;unexecuteAlarmTimeOut_is_null;{};#2. 任务配置模块-2.4 更新配置-unexecuteAlarmTimeOut字段为空场景
+#/api/v1/taskconfig/;updateConfig;unexecuteUpgradeAlarmTimeOut_is_null;{};#2. 任务配置模块-2.4 更新配置-unexecuteUpgradeAlarmTimeOut字段为空场景
+#/api/v1/taskconfig/;updateConfig;executeAlarmTimeOut_is_null;{};#2. 任务配置模块-2.4 更新配置-executeAlarmTimeOut字段为空场景
+#/api/v1/taskconfig/;updateConfig;targetCodeList_is_null;{};#2. 任务配置模块-2.4 更新配置-capabilityCodeList字段为空场景
+#/api/v1/taskconfig/;updateConfig;capabilityCodeList_is_null;{};#2. 任务配置模块-2.4 更新配置-capabilityCodeList字段为空场景
+#
+#/api/v1/taskconfig/;updateConfig;operationUnitId_long_outside_50;{};#2. 任务配置模块-2.4 更新配置-operationUnitId字段超长>50
+#/api/v1/taskconfig/;updateConfig;configType_long_outside_10;{};#2. 任务配置模块-2.4 更新配置-configType字段超长>10
+#/api/v1/taskconfig/;updateConfig;locationGroup_long_outside_50;{};#2. 任务配置模块-2.4 更新配置-locationGroup字段超长>50
+#/api/v1/taskconfig/;updateConfig;timeGroup_long_outside_50;{};#2. 任务配置模块-2.4 更新配置-timeGroup字段超长>50
+#/api/v1/taskconfig/;updateConfig;taskDisplayTimeRange_long_outside_10;{};#2. 任务配置模块-2.4 更新配置-taskDisplayTimeRange字段超长>10
+#/api/v1/taskconfig/;updateConfig;sowMaxCount_long_side_10;{};#2. 任务配置模块-2.4 更新配置-sowMaxCount字段超长>10
+#/api/v1/taskconfig/;updateConfig;processCode_long_outside_50;{};#2. 任务配置模块-2.4 更新配置-processCode字段超长>50
+#/api/v1/taskconfig/;updateConfig;unexecuteAlarmTimeOut_long_outside_10;{};#2. 任务配置模块-2.4 更新配置-unexecuteAlarmTimeOut字段超长>10
+#/api/v1/taskconfig/;updateConfig;unexecuteUpgradeAlarmTimeOut_long_outside_10;{};#2. 任务配置模块-2.4 更新配置-unexecuteUpgradeAlarmTimeOut字段超长>10
+#/api/v1/taskconfig/;updateConfig;executeAlarmTimeOut_long_outside_10;{};#2. 任务配置模块-2.4 更新配置-executeAlarmTimeOut字段超长>10
+#
+#/api/v1/taskconfig/;updateConfig;smoke;{};#2. 任务配置模块-2.4 更新配置-smoke
+#/api/v1/taskconfig/;updateConfig;smoke;{};#2. 任务配置模块-2.4 更新配置-smoke
+#/api/v1/taskconfig/;updateConfig;smoke;{};#2. 任务配置模块-2.4 更新配置-smoke
+#/api/v1/taskconfig/;updateConfig;smoke;{};#2. 任务配置模块-2.4 更新配置-smoke
