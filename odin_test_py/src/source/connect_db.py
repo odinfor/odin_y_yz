@@ -229,7 +229,7 @@ class RspTable(base):
     casename = Column(String(20), nullable=True, default='smoke', comment="测试case名称")
     comment = Column(Text, nullable=True, comment="测试场景说明")
     rsp = Column(String(500), nullable=True, default=None, comment="接口响应返回")
-    is_pass = Column(bool, nullable=True, default=False, comment="是否通过")
+    is_pass = Column(Boolean, nullable=True, default=False, comment="是否通过")
     log = Column(String(500), nullable=True, default=None, comment="校验说明")
 
     def __init__(self, caseID, casename, comment, rsp, is_pass, log):
@@ -246,7 +246,7 @@ class RspTable(base):
                                                                                          self.is_pass, self.log)
 
 
-class DBControl():
+class DBControl:
     def __init__(self):
         conf = Config()
         if conf.operating_environment == 'test':
@@ -316,7 +316,7 @@ if __name__ == '__main__':
     test = DBControl()
     test.create_table()
     # test.drop_all_db()
-    test.insert_all_table()
+    # test.insert_all_table()
     test.close_db()
 
 
