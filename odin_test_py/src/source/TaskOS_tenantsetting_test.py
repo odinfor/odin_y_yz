@@ -13,10 +13,13 @@ import requests
 import random
 from functools import wraps
 import sys
-sys.path.append('..')
+current_dir = os.path.abspath(os.path.dirname(__file__))
+sys.path.append(current_dir)
+sys.path.append("..")
 # from .base import Logging, Config
 # from source.base import Logging, Config, UsingExcel
-from source.base import Logging, Config, UseingExcel
+from base import Logging, Config, UseingExcel
+
 
 
 def cut_off_rule(func):
@@ -135,8 +138,8 @@ class TestTenantSetting():
 
         # 常量属性
         self.curl = '/api/v1/tenantsetting/task/'   # 接口url
-        self.success_code = 0           # 成功返回code
-        self.success_msg = 'SUCCESS'    # 成功返回msg
+        self.error_code = 0           # 返回code
+        self.error_msg = 'SUCCESS'    # 返回msg
         # host地址
         if self.config.operating_environment == 'test':
             self.host = self.config.test_host
@@ -355,15 +358,16 @@ class TestTenantSetting():
     #     strtuple = ('http://', self.host, self.curl, casename)
     #     url = ''.join(strtuple)
 
-    @assertFail
-    def run_testcase(self, urlpart, data, interfacetype='queryPage', casename='smoke', needoperationUnitld=False, comment='这是默认测试场景说明'):
+    # @assertFail
+    def run_testcase(self, urlpart, data, interfacetype='queryPage', casename='smoke', needoperationUnitld=False,
+                     comment='这是默认测试场景说明'):
         """
         # 调用测试接口请求
         :param interfacetype:被测接口
         :param data:入参
         :param casename:接口场景<smoke, *_is_null, *_long_outside_*, usecofig>
         :param needoperationUnitld:header头是否需要获取operationUnitId
-        :return:无返回
+        :return:接口响应返回
         """
         # 当前执行任务说明
         self.log.info('执行用例:{}'.format(comment))
@@ -378,6 +382,7 @@ class TestTenantSetting():
         url = 'http://{}{}{}'.format(self.host, urlpart, interfacetype)
         # 发送接口请求
         rsp = requests.post(url=url, data=json.dumps(data), headers=headers)
+        rsp_json = rsp.json()
         try:
             rsp.raise_for_status()
         except Exception as e:
@@ -386,12 +391,32 @@ class TestTenantSetting():
             self.log.info('执行{}, \n接口请求地址:{},\n请求入参data:{},\n接口返回rsp={}'.format(self.run_testcase.__name__,
                                                                            url, data, rsp.json()))
             if casename == 'smoke' or casename == 'useconfig':
-                assert rsp.json()['error_code'] == 0
-                assert rsp.json()['error_msg'] == 'SUCCESS' or rsp.json()['error_msg'] == 'success'
+                self.error_code = rsp_json['error_code']
+                self.error_msg = rsp_json['error_msg']
+                if rsp_json['error_code'] == 0 and (rsp_json['error_msg'] == 'SUCCESS' or rsp_json['error_msg'] == 'success'):
+                    return True, rsp_json
+                else:
+                    self.error_code = rsp_json['error_code']
+                    self.error_msg = rsp_json['error_msg']
+                    return False, rsp_json
             elif casename.find('_long_outside_') > 0:
-                assert rsp.json()['error_code'] == 30100
+                if rsp.json()['error_code'] == 30100:
+                    self.error_code = rsp_json['error_code']
+                    self.error_msg = rsp_json['error_msg']
+                    return True, rsp_json
+                else:
+                    self.error_code = rsp_json['error_code']
+                    self.error_msg = rsp_json['error_msg']
+                    return False, rsp_json
             elif casename.find('_is_null') > 0:
-                assert rsp.json()['error_code'] == 30100
+                if rsp.json()['error_code'] == 30100:
+                    self.error_code = rsp_json['error_code']
+                    self.error_msg = rsp_json['error_msg']
+                    return True, rsp_json
+                else:
+                    self.error_code = rsp_json['error_code']
+                    self.error_msg = rsp_json['error_msg']
+                    return False, rsp_json
 
 
 @cut_off_rule
@@ -402,11 +427,24 @@ def main():
     # 获取system_manage_run.txt文件配置列表
     config_info = run_test.get_run_config_info()
     # excel方法类
-    use_excel = UsingExcel()
+    use_excel = UseingExcel()
 
     # 获取headers需要字段
     auth = run_test.login_yunxi()
     operationUnitId = run_test.get_operationUnitId()
+
+    # 记录字段
+    # list_line_case = []     # 单个case结果记录
+    list_all_cases = []     # 所有case结果记录
+
+    #======
+    casename_list = []
+    comment_list = []
+    reqdata_list = []
+    rspdata_list = []
+    rsp_data = []
+    is_pass_list = []
+
     # 批量执行
     for info in config_info:
         # log.info('='*30 + '这是分界线' + '*'*30)
@@ -414,7 +452,16 @@ def main():
         # 组装不同接口类型不同测试场景下的data
         data = run_test.get_data_info(interfacetype=info[1], casename=info[2], **info[3])
         # 调用接口请求
-        run_test.run_testcase(urlpart=info[0], data=data, interfacetype=info[1], casename=info[2], comment=info[4])
+        rsp = run_test.run_testcase(urlpart=info[0], data=data, interfacetype=info[1], casename=info[2], comment=info[4])
+
+        casename_list.append(info[2])
+        comment_list.append(info[4])
+        reqdata_list.append(data)
+        rspdata_list.append(rsp[1])
+        is_pass_list.append(rsp[0])
+    # 写入文件
+    use_excel.api_result_excel(casename=casename_list, comment=comment_list, data_request=reqdata_list,
+                               data_return=rspdata_list,is_pass=is_pass_list, len=len(casename_list))
 
 
 if __name__ == '__main__':

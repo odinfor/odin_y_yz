@@ -41,8 +41,8 @@
 #
 /api/v1/tenantsetting/task/;resetStatus;smoke;{};#1.1.获取任务项配置-1.4任务项配置恢复默认-smoke
 #
-#gettask;queryPage;smoke;{"code":"NC_Weight","businessCode":"NC","name":"测试获取任务项配置","status":"ENABLE","page":1,"page_size":20}
-#gettask;queryBusinessList;smoke;{}
+gettask;queryPage;smoke;{"code":"NC_Weight","businessCode":"NC","name":"测试获取任务项配置","status":"ENABLE","page":1,"page_size":20}
+gettask;queryBusinessList;smoke;{}
 ############################################################################
 ############################################################################
 #/api/v1/tenantsetting/task/;queryEnabledList;smoke;{};#2. 任务配置模块-2.1 获取配置任务项列表-smoke

@@ -203,8 +203,9 @@ class Base_Method():
                 while '' in row:
                     row.remove('')
             # 组合头字段与行单元格
-            dictparams = {row_params_head[0]:row[0], row_params_head[1]:row[1], row_params_head[2]:row[2],
-                          row_params_head[3]:row[3], row_params_head[4]:row[4], row_params_head[5]:row[5:]}
+            dictparams = {row_params_head[0]: row[0], row_params_head[1]: row[1], row_params_head[2]: row[2],
+                          row_params_head[3]: row[3], row_params_head[4]: row[4], row_params_head[5]: row[5],
+                          row_params_head[6]: row[6:]}
             get_params_sheet.append(dictparams)
         # excel check sheet配置内容
         for rownum in range(2, rows_check):
@@ -213,7 +214,8 @@ class Base_Method():
             if row:
                 while '' in row:
                     row.remove('')
-            dictcheck = {row_check_head[0]:row[0], row_check_head[1]:row[1], row_check_head[2]:row[2], row_check_head[3]:row[3:]}   # 组合头字段与行单元格
+            dictcheck = {row_check_head[0]: row[0], row_check_head[1]: row[1], row_check_head[2]: row[2],
+                         row_check_head[3]: row[3], row_check_head[4]: row[4:]}   # 组合头字段与行单元格
             get_check_sheet.append(dictcheck)
 
         dict_excel = {'params_sheet': get_params_sheet, 'check_sheet': get_check_sheet}
@@ -228,18 +230,6 @@ class Base_Method():
         """
         paramssheetlist = data['params_sheet']     # 参数配置sheet数据
         checksheetlist = data['check_sheet']       # 校验配置sheet数据
-
-
-
-        pass
-
-    def write_excel(self, filename, data):
-        """
-        # 执行接口测试结果写入excel
-        :param filename:
-        :param data:
-        :return:
-        """
         pass
 
     def login_url(self, func):
@@ -374,7 +364,7 @@ class Base_Method():
             data = str(e)
 
 
-class UseingExcel:
+class UseingExcel():
     """ Excel 文件操作类"""
     log = Logging()
     config = Config()
@@ -497,15 +487,19 @@ class UseingExcel:
         style.broders = broders
         return style
 
-    def api_result_excel(self, explain, msg_request, msg_return, is_pass=[], check_explain=None,
-                         csvfile='test_api_resquest.xlsx'):
+    def api_result_excel(self, casename, comment, data_request, data_return, is_pass, len, check_explain=None,):
         """
         #接口执行结果写入excel文件
-        #explain:说明,msg_request:请求参数,msg_return:返回,is_pass:是否通过
         #explain/msg_request/msg_return列表类型
+        :param casename:用例场景说明
+        :param data_request:请求参数
+        :param data_return:接口响应返回
+        :param is_pass:是否通过
+        :param check_explain:
+        :return:None
         """
         # 接口执行结果写入文件路径
-        excel_dir = self.config.excel_dir + '\\' + 'api_result.xls'
+        excel_dir = self.config.refdata_dir + '/api_result.xls'
         try:
             # 创建xls文件对象
             wb = xlwt.Workbook(encoding='utf-8')
@@ -520,21 +514,21 @@ class UseingExcel:
             sheet1 = wb.add_sheet(u'api_results', cell_overwrite_ok=True)
             """#第一行"""
             # 写入单元格内容
-            sheet1.write_merge(0, 0, 0, 5, u"接口执行结果", self.set_style(21, 1, bold=True))
+            sheet1.write_merge(0, 0, 0, 6, u"接口执行结果", self.set_style(21, 1, bold=True))
             """#第二行"""
-            sheet1.write_merge(1, 1, 0, 5, u"使用get/post请求,打印返回", self.set_style(21, 1, bold=True))
+            sheet1.write_merge(1, 1, 0, 6, u"使用get/post请求,打印返回", self.set_style(21, 1, bold=True))
             """#第三行"""
             # 标题行
-            row3 = ['ID', u'说明', u'请求参数', u'返回', u"是否通过", u"校验说明"]
+            row3 = ['ID', u'casename', u'说明', u'请求参数', u'返回', u"是否通过", u"校验说明"]
             for i in row3:
                 # 设置列宽
-                if row3.index(i) == 1:
+                if row3.index(i) == 2:
                     consol = sheet1.col(row3.index(i))
                     consol.width = 256 * 40
-                if row3.index(i) == 2 or row3.index(i) == 3:
+                if row3.index(i) == 3 or row3.index(i) == 4:
                     consol = sheet1.col(row3.index(i))
                     consol.width = 256 * 80
-                if row3.index(i) == 5:
+                if row3.index(i) == 6:
                     consol = sheet1.col(row3.index(i))
                     consol.width = 256 * 50
                 sheet1.write(2, row3.index(i), i, self.set_style(20, 1, bold=True, center='horz'))
@@ -543,42 +537,48 @@ class UseingExcel:
             indexid = 0
             # 起始行
             row_start = 2
-            # test_api_request.xlsx文件配置行数
-            data = xlrd.open_workbook(self.config.excel_dir + '\\' + csvfile)
-            table = data.sheets()[0]
-            nrows = table.nrows
+            # # test_api_request.xlsx文件配置行数
+            # data = xlrd.open_workbook(self.config.excel_dir + '\\' + csvfile)
+            # table = data.sheets()[0]
+            # nrows = table.nrows
             while True:
                 indexid += 1
                 row_start += 1
-                if row_start > (len(msg_return) + 2):
+                if row_start > (len+2):
                     break
                 else:
-                    # caseid自增id写入
+                    # 自增id写入
                     sheet1.write(row_start, 0, indexid, self.set_style(1, 0, center='all'))
+                    # casename
+                    sheet1.write(row_start, 1, casename[indexid-1], self.set_style(1, 0, center='vert'))
                     # 写入说明
-                    sheet1.write(row_start, 1, explain[indexid - 1], self.set_style(1, 0, center='vert'))
+                    sheet1.write(row_start, 2, comment[indexid-1], self.set_style(1, 0, center='vert'))
                     # 写入参数
-                    sheet1.write(row_start, 2, msg_request[indexid - 1], self.set_style(1, 0, center='vert', wrap=1))
+                    sheet1.write(row_start, 3, str(data_request[indexid-1]), self.set_style(1, 0, center='vert', wrap=1))
                     # 写入返回
-                    sheet1.write(row_start, 3, msg_return[indexid - 1], self.set_style(1, 0, center='vert', wrap=1))
+                    sheet1.write(row_start, 4, str(data_return[indexid-1]), self.set_style(1, 0, center='vert', wrap=1))
                     # 写入是否通过,通过则标绿色底色,未通过则标红色底色
-                    if is_pass == []:
-                        sheet1.write(row_start, 4, '', self.set_style(23, 0))
+                    if is_pass == 'pass':
+                        sheet1.write(row_start, 5, '√', self.set_style(3, 0, center='all'))
                     else:
-                        if (indexid) > len(is_pass):
-                            raise (u"test_api_request.xlsx文件code字段有未填项")
-                        else:
-                            if is_pass[indexid - 1]:
-                                sheet1.write(row_start, 4, '√', self.set_style(3, 0, center='all'))
-                            elif is_pass[indexid - 1] == None:
-                                sheet1.write(row_start, 4, '', self.set_style(23, 0))
-                            else:
-                                sheet1.write(row_start, 4, '×', self.set_style(2, 0, center='all'))
+                        sheet1.write(row_start, 5, '×', self.set_style(2, 0, center='all'))
+                    # if is_pass == []:
+                    #     sheet1.write(row_start, 5, '', self.set_style(23, 0))
+                    # else:
+                    #     if (indexid) > len(is_pass):
+                    #         raise (u"test_api_request.xlsx文件code字段有未填项")
+                    #     else:
+                    #         if is_pass[indexid - 1]:
+                    #             sheet1.write(row_start, 4, '√', self.set_style(3, 0, center='all'))
+                    #         elif is_pass[indexid - 1] == None:
+                    #             sheet1.write(row_start, 4, '', self.set_style(23, 0))
+                    #         else:
+                    #             sheet1.write(row_start, 4, '×', self.set_style(2, 0, center='all'))
                     # 写入校验说明
                     if check_explain == None:
                         pass
                     else:
-                        sheet1.write(row_start, 5, check_explain[indexid - 1],
+                        sheet1.write(row_start, 6, check_explain,
                                      self.set_style(1, 0, center='all', wrap=1))
             try:
                 wb.save(excel_dir)
