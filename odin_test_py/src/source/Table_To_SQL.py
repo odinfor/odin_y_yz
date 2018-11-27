@@ -1,38 +1,20 @@
-# -*- coding:utf-8 -*-
+# -*- coding: utf-8 -*-
+# @Time    : 2018-11-27 19:26
+# @Author  : odin_y
+# @Email   : 
+# @File    : Table_To_SQL.py
+# @Software: PyCharm
+# @Comment : 文件数据转入SQL
+import xlrd
 from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, Text, Boolean
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from base import Config, Base_Method
+from base import Config, Logging
+import os, platform
 
 base = declarative_base()   # 创建基类
-basemethod = Base_Method().get_excel_content()
-
-
-def make_paramdict(sheetname):
-    """
-    # 生成插入列表
-    :param sheetname: excel sheet名称
-    :return:
-    """
-    if sheetname in ['input', 'check']:
-        basemethod = Base_Method().get_excel_content()
-        if sheetname == 'input':
-            listsheet = basemethod['params_sheet']
-        else:
-            listsheet = basemethod['check_sheet']
-        list1 = []
-        if len(listsheet) > 0:
-            for i in listsheet:
-                list2 = i['params']
-                while len(list2) <= 11:
-                    list2.append(None)
-                list1.append(list2)
-        return list1
-    else:
-        raise Exception('调用make_paramdict方法输入sheet名称不存在')
-
-params_list = make_paramdict(sheetname='input')
-check_list = make_paramdict(sheetname='check')
+conf = Config()
+log = Logging()
 
 
 class ParamsAllTable(base):
@@ -57,32 +39,16 @@ class ParamsAllTable(base):
     params_10 = Column(String(50), nullable=True, default=None, comment="请求入参")
     params_11 = Column(String(50), nullable=True, default=None, comment="请求入参")
 
-    def __init__(self, caseID, casename, isrun, host, url, comment=None, *args):
-        self.caseID = caseID
-        self.casename = casename
-        self.isrun = isrun
-        self.host = host
-        self.url = url
-        self.comment = comment
-        self.params_1 = args[0]
-        self.params_2 = args[1]
-        self.params_3 = args[2]
-        self.params_4 = args[3]
-        self.params_5 = args[4]
-        self.params_6 = args[5]
-        self.params_7 = args[6]
-        self.params_8 = args[7]
-        self.params_9 = args[8]
-        self.params_10 = args[9]
-        self.params_11 = args[10]
-
     def __repr__(self):
-        return "<ParamsTable(caseID=%, casename=%, isrun=%, host=%, url=%, comment=%, params_1=%, params_2=%, " \
+        return "<ParamsAllTable(caseID=%, casename=%, isrun=%, host=%, url=%, comment=%, params_1=%, params_2=%, " \
                "params_3=%, params_4=%, params_5=%,params_6=%, params_7=%, params_8=%, params_9=%, params_10=%, " \
-               "params_11=%)>"%(self.caseID, self.casename, self.isrun, self.host, self.url, self.comment,
-                                self.params_1, self.params_2, self.params_3, self.params_4, self.params_5,
-                                self.params_6,self.params_7,self.params_8, self.params_9, self.params_10,
-                                self.params_11)
+               "params_11=%)>"%(ParamsAllTable.caseID, ParamsAllTable.casename, ParamsAllTable.isrun,
+                                ParamsAllTable.host, ParamsAllTable.url, ParamsAllTable.comment,
+                                ParamsAllTable.params_1, ParamsAllTable.params_2, ParamsAllTable.params_3,
+                                ParamsAllTable.params_4, ParamsAllTable.params_5,
+                                ParamsAllTable.params_6,ParamsAllTable.params_7,ParamsAllTable.params_8,
+                                ParamsAllTable.params_9, ParamsAllTable.params_10,
+                                ParamsAllTable.params_11)
 
 
 class ParamsOnceTable(base):
@@ -107,32 +73,15 @@ class ParamsOnceTable(base):
     params_10 = Column(String(50), nullable=True, default=None, comment="请求入参")
     params_11 = Column(String(50), nullable=True, default=None, comment="请求入参")
 
-    def __init__(self, caseID, casename, isrun, host, url, comment=None, *args):
-        self.caseID = caseID
-        self.casename = casename
-        self.isrun = isrun
-        self.host = host
-        self.url = url
-        self.comment = comment
-        self.params_1 = args[0]
-        self.params_2 = args[1]
-        self.params_3 = args[2]
-        self.params_4 = args[3]
-        self.params_5 = args[4]
-        self.params_6 = args[5]
-        self.params_7 = args[6]
-        self.params_8 = args[7]
-        self.params_9 = args[8]
-        self.params_10 = args[9]
-        self.params_11 = args[10]
-
     def __repr__(self):
-        return "<ParamsTable(caseID=%, casename=%, isrun=%, host=%, url=%, comment=%, params_1=%, params_2=%, " \
+        return "<ParamsOnceTable(caseID=%, casename=%, isrun=%, host=%, url=%, comment=%, params_1=%, params_2=%, " \
                "params_3=%, params_4=%, params_5=%,params_6=%, params_7=%, params_8=%, params_9=%, params_10=%, " \
-               "params_11=%)>"%(self.caseID, self.casename, self.isrun, self.host, self.url, self.comment,
-                                self.params_1, self.params_2, self.params_3, self.params_4, self.params_5,
-                                self.params_6,self.params_7,self.params_8, self.params_9, self.params_10,
-                                self.params_11)
+               "params_11=%)>"%(ParamsOnceTable.caseID, ParamsOnceTable.casename, ParamsOnceTable.isrun,
+                                ParamsOnceTable.host, ParamsOnceTable.url, ParamsOnceTable.comment,
+                                ParamsOnceTable.params_1, ParamsOnceTable.params_2, ParamsOnceTable.params_3,
+                                ParamsOnceTable.params_4, ParamsOnceTable.params_5, ParamsOnceTable.params_6,
+                                ParamsOnceTable.params_7,ParamsOnceTable.params_8, ParamsOnceTable.params_9,
+                                ParamsOnceTable.params_10, ParamsOnceTable.params_11)
 
 
 class CheckOnceTable(base):
@@ -155,27 +104,12 @@ class CheckOnceTable(base):
     check_10 = Column(String(50), nullable=True, default=None, comment="校验参数")
     check_11 = Column(String(50), nullable=True, default=None, comment="校验参数")
 
-    def __init__(self, caseID, casename, code, *args):
-        self.caseID = caseID
-        self.casename = casename
-        self.code = code
-        self.check_1 = args[0]
-        self.check_2 = args[1]
-        self.check_3 = args[2]
-        self.check_4 = args[3]
-        self.check_5 = args[4]
-        self.check_6 = args[5]
-        self.check_7 = args[6]
-        self.check_8 = args[7]
-        self.check_9 = args[8]
-        self.check_10 = args[9]
-        self.check_11 = args[10]
-
     def __repr__(self):
-        return "<ParamsTable(caseID=%, casename=%, code=%, check_1=%, check_2=%, check_3=%, check_4=%, check_5=%,check_6=%, " \
-               "check_7=%, check_8=%, check_9=%, check_10=%, check_11=%)>"%(self.caseID, self.casename, self.code,
-                self.check_1,self.check_2, self.check_3, self.check_4, self.check_5, self.check_6, self.check_7,
-                self.check_8,self.check_9, self.check_10, self.check_11)
+        return "<CheckOnceTable(caseID=%, casename=%, code=%, check_1=%, check_2=%, check_3=%, check_4=%, check_5=%,check_6=%, " \
+               "check_7=%, check_8=%, check_9=%, check_10=%, check_11=%)>"%(CheckOnceTable.caseID, CheckOnceTable.casename,
+                CheckOnceTable.code, CheckOnceTable.check_1,CheckOnceTable.check_2, CheckOnceTable.check_3,
+                CheckOnceTable.check_4, CheckOnceTable.check_5, CheckOnceTable.check_6, CheckOnceTable.check_7,
+                CheckOnceTable.check_8,CheckOnceTable.check_9, CheckOnceTable.check_10, CheckOnceTable.check_11)
 
 
 class CheckAllTable(base):
@@ -198,27 +132,12 @@ class CheckAllTable(base):
     check_10 = Column(String(50), nullable=True, default=None, comment="校验参数")
     check_11 = Column(String(50), nullable=True, default=None, comment="校验参数")
 
-    def __init__(self, caseID, casename, code, *args):
-        self.caseID = caseID
-        self.casename = casename
-        self.code = code
-        self.check_1 = args[0]
-        self.check_2 = args[1]
-        self.check_3 = args[2]
-        self.check_4 = args[3]
-        self.check_5 = args[4]
-        self.check_6 = args[5]
-        self.check_7 = args[6]
-        self.check_8 = args[7]
-        self.check_9 = args[8]
-        self.check_10 = args[9]
-        self.check_11 = args[10]
-
     def __repr__(self):
-        return "<ParamsTable(caseID=%, casename=%, code=%, check_1=%, check_2=%, check_3=%, check_4=%, check_5=%,check_6=%, " \
-               "check_7=%, check_8=%, check_9=%, check_10=%, check_11=%)>"%(self.caseID, self.casename, self.code,
-                self.check_1,self.check_2, self.check_3, self.check_4, self.check_5, self.check_6, self.check_7,
-                self.check_8,self.check_9, self.check_10, self.check_11)
+        return "<CheckAllTable(caseID=%, casename=%, code=%, check_1=%, check_2=%, check_3=%, check_4=%, check_5=%,check_6=%, " \
+               "check_7=%, check_8=%, check_9=%, check_10=%, check_11=%)>"%(CheckAllTable.caseID, CheckAllTable.casename,
+                CheckAllTable.code, CheckAllTable.check_1, CheckAllTable.check_2, CheckAllTable.check_3,
+                CheckAllTable.check_4, CheckAllTable.check_5, CheckAllTable.check_6, CheckAllTable.check_7,
+                CheckAllTable.check_8, CheckAllTable.check_9, CheckAllTable.check_10, CheckAllTable.check_11)
 
 
 class RspTable(base):
@@ -232,21 +151,75 @@ class RspTable(base):
     is_pass = Column(Boolean, nullable=True, default=False, comment="是否通过")
     log = Column(String(500), nullable=True, default=None, comment="校验说明")
 
-    def __init__(self, caseID, casename, comment, rsp, is_pass, log):
-        self.caseID = caseID
-        self.casename = casename
-        self.comment = comment
-        self.rsp = rsp
-        self.is_pass = is_pass
-        self.log = log
+    def __repr__(self):
+        return "<RspTable(caseID=%, casename=%, comment=%, rsp=%, is_pass=%, log=%>"%(RspTable.caseID, RspTable.casename,
+                                                                                         RspTable.comment, RspTable.rsp,
+                                                                                         RspTable.is_pass, RspTable.log)
+
+
+class TestTable(base):
+    """# 响应结果表"""
+    __tablename__ = 'test_table'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    caseID = Column(Integer, nullable=True, comment="测试案例id")
+    casename = Column(String(20), nullable=True, default='smoke', comment="测试case名称")
 
     def __repr__(self):
-        return "<ParamsTable(caseID=%, casename=%, comment=%, rsp=%, is_pass=%, log=%>"%(self.caseID, self.casename,
-                                                                                         self.comment, self.rsp,
-                                                                                         self.is_pass, self.log)
+        return "<TestTable(caseID=%, casename=%>"%(TestTable.caseID, TestTable.casename)
 
 
-class DBControl:
+def get_excel_content(filename='TaskOs_api_refdata.xlsx'):
+    """
+    # 解析excel文件
+    :param filename:文件路径
+    :return: 返回存储excel内容列表
+    """
+    filepath = os.path.join(conf.refdata_dir, filename)
+    system = platform.system()  # 获取系统环境
+    if system == 'Windows' or system == 'Linux':
+        # Windows、Linux系统环境
+        openfile = xlrd.open_workbook(filename=filepath, encoding_override='utf-8')
+    elif system == 'Darwin':
+        # MacOSX系统环境
+        openfile = xlrd.open_workbook(filename=filepath)
+    else:
+        log.error("不支持的系统环境")
+        return False
+    # 配置参数sheet
+    table_params = openfile.sheet_by_name('input')
+    rows_params = table_params.nrows        # 行
+    ncols_params = table_params.ncols       # 列
+
+    # 配置校验sheet
+    table_check = openfile.sheet_by_name('check')
+    rows_check = table_check.nrows
+    ncols_check = table_check.ncols
+
+    # excel头行
+    row_params_head = table_params.row_values(1)
+    row_check_head = table_check.row_values(1)
+
+    # 去除空单元格
+    while '' in row_params_head:
+        row_params_head.remove('')
+    while '' in row_check_head:
+        row_check_head.remove('')
+
+    # excel params sheet配置内容
+    for rownum in range(2, rows_params):
+        row = table_params.row_values(rownum)
+        # 组合头字段与行单元格
+        dictparams = dict(zip(row_params_head, row))
+        # excel check sheet配置内容
+        row = table_check.row_values(rownum)
+        dictcheck = dict(zip(row_check_head, row))
+
+        dict_excel = {'params_sheet': dictparams, 'check_sheet': dictcheck}
+        yield dict_excel
+
+
+class SqlalchemyControlDB:
+    """# sqlalchemy 操作db"""
     def __init__(self):
         conf = Config()
         if conf.operating_environment == 'test':
@@ -262,62 +235,27 @@ class DBControl:
                                                                      conf.db_local_host, conf.db_local_port,
                                                                      conf.db_local_name)
         # 初始化连接mysqldb, 不显示sql logging
-        self.engine = create_engine(self.db_adress, echo=False)  # 建立数据库
+        self.engine = create_engine(self.db_adress, echo=True)  # 建立数据库
         db_session = sessionmaker(bind=self.engine)  # 创建连接
         self.session = db_session()
 
-    def create_table(self):
-        """# 创建数据表"""
+    def creat_all_table(self):
         base.metadata.create_all(self.engine)
 
-    def close_db(self):
-        self.session.close()
+    def insertdict(self):
+        excelfile = get_excel_content()
+        for line in excelfile:
+            param_obj = ParamsOnceTable(**line['params_sheet'])
+            check_obj = CheckOnceTable(**line['check_sheet'])
+            try:
+                self.session.add(param_obj)
+                self.session.add(check_obj)
+            except:
+                self.session.roll_back()
+        self.session.commit()
 
-    def insert_all_table(self):
-        objlist1 = []
-        objlist2 = []
-        paramsheet = basemethod['params_sheet']
-        checksheet = basemethod['check_sheet']
-        # if len(params_list) > 0:
-        #     for param in paramsheet:
-        #         obj = ParamsTable(param['id'], param['explain'], param['url'], *params_list[paramsheet.index(param)])
-        #         objlist1.append(obj)
-        #     print('objlist1:',objlist1)
-        # if len(checksheet) > 0:
-        #     for check in checksheet:
-        #         obj = CheckTable(check['id'], check['explain'], *check_list[checksheet.index(check)])
-        #         objlist2.append(obj)
-        if len(params_list) > 0:
-            for param in paramsheet:
-                obj = ParamsOnceTable(param['id'], param['explain'], param['isrun'], param['host'], param['url'], *params_list[paramsheet.index(param)])
-                self.insert(obj)
-        if len(checksheet) > 0:
-            for check in checksheet:
-                obj = CheckOnceTable(check['id'], check['explain'], check['code'], *check_list[checksheet.index(check)])
-                self.insert(obj)
-
-    def drop_all_db(self):
-        base.metadata.drop_all(self.engine)
-
-    def insert(self, obj):
-        try:
-            self.session.add(obj)
-        except:
-            self.rollback()
-        else:
-            self.session.commit()
 
 if __name__ == '__main__':
-    # test = DBControl()
-    # test.create_table()
-    # for params in params_list:
-    #     obj = ParamsTable(1, 'this is explain', *params)
-    #     test.insert(obj)
-    test = DBControl()
-    test.create_table()
-    # test.drop_all_db()
-    # test.insert_all_table()
-    test.close_db()
-
-
-
+    run = SqlalchemyControlDB()
+    # run.creat_all_table()
+    run.insertdict()
