@@ -14,70 +14,70 @@
 # 接口类型；接口地址；接口测试场景；入参data(全部以smoke场景入参)
 # 1.4更新任务状态测试阶段固定写死重置租户1192178272108020742
 #============================================================================================================================#
-/api/v1/tenantsetting/task/;queryPage;useconfig;{};#1.系统管理模块-1.1 获取任务项配置-参数全为空场景
+#/api/v1/tenantsetting/task/;queryPage;useconfig;{};#1.系统管理模块-1.1 获取任务项配置-参数全为空场景
 #
-/api/v1/tenantsetting/task/;queryPage;useconfig;{"businessCode":"BC"};#1.系统管理模块-1.1 获取任务项配置-指定code为BC,库中存在场景
-/api/v1/tenantsetting/task/;queryPage;useconfig;{"businessCode":"BC"};#1.系统管理模块-1.1 获取任务项配置-指定code为BC22,库中不存在场景
+#/api/v1/tenantsetting/task/;queryPage;useconfig;{"businessCode":"BC"};#1.系统管理模块-1.1 获取任务项配置-指定code为BC,库中存在场景
+#/api/v1/tenantsetting/task/;queryPage;useconfig;{"businessCode":"BC"};#1.系统管理模块-1.1 获取任务项配置-指定code为BC22,库中不存在场景
 #
-/api/v1/tenantsetting/task/;queryPage;useconfig;{"name":"配种"};#1.系统管理模块-1.1 获取任务项配置-指定name为配种,库中存在场景
-/api/v1/tenantsetting/task/;queryPage;useconfig;{"name":"配种11"};#1.系统管理模块-1.1 获取任务项配置-指定name为配种,库中不存在场景
+#/api/v1/tenantsetting/task/;queryPage;useconfig;{"name":"配种"};#1.系统管理模块-1.1 获取任务项配置-指定name为配种,库中存在场景
+#/api/v1/tenantsetting/task/;queryPage;useconfig;{"name":"配种11"};#1.系统管理模块-1.1 获取任务项配置-指定name为配种,库中不存在场景
 #
-/api/v1/tenantsetting/task/;queryPage;useconfig;{"status":"ENABLE"};#1.系统管理模块-1.1 获取任务项配置-指定status为ENABLE
-/api/v1/tenantsetting/task/;queryPage;useconfig;{"status":"DISABLE"};#1.系统管理模块-1.1 获取任务项配置-指定status为DISABLE
+#/api/v1/tenantsetting/task/;queryPage;useconfig;{"status":"ENABLE"};#1.系统管理模块-1.1 获取任务项配置-指定status为ENABLE
+#/api/v1/tenantsetting/task/;queryPage;useconfig;{"status":"DISABLE"};#1.系统管理模块-1.1 获取任务项配置-指定status为DISABLE
 #
-/api/v1/tenantsetting/task/;queryPage;useconfig;{"page":2};#1.系统管理模块-1.1 获取任务项配置-page,page_size组合测试场景1
-/api/v1/tenantsetting/task/;queryPage;useconfig;{"page":1, "page_size":5};#1.系统管理模块-1.1 获取任务项配置-page,page_size组合测试场景1
-/api/v1/tenantsetting/task/;queryPage;useconfig;{"page":2, "page_size":5};#1.系统管理模块-1.1 获取任务项配置-page,page_size组合测试场景2
-/api/v1/tenantsetting/task/;queryPage;useconfig;{"page":3, "page_size":5};#1.系统管理模块-1.1 获取任务项配置-page,page_size组合测试场景3
+#/api/v1/tenantsetting/task/;queryPage;useconfig;{"page":2};#1.系统管理模块-1.1 获取任务项配置-page,page_size组合测试场景1
+#/api/v1/tenantsetting/task/;queryPage;useconfig;{"page":1, "page_size":5};#1.系统管理模块-1.1 获取任务项配置-page,page_size组合测试场景1
+#/api/v1/tenantsetting/task/;queryPage;useconfig;{"page":2, "page_size":5};#1.系统管理模块-1.1 获取任务项配置-page,page_size组合测试场景2
+#/api/v1/tenantsetting/task/;queryPage;useconfig;{"page":3, "page_size":5};#1.系统管理模块-1.1 获取任务项配置-page,page_size组合测试场景3
 #
-/api/v1/globalsetting/task/;queryBusinessList;smoke;{};#获取任务项配置-1.2 查询业务下拉列表-smoke
+#/api/v1/globalsetting/task/;queryBusinessList;smoke;{};#获取任务项配置-1.2 查询业务下拉列表-smoke
 #
-/api/v1/tenantsetting/task/;updateStatus;smoke;{};#获取任务项配置-1.3 更新任务状态-smoke
-/api/v1/tenantsetting/task/;updateStatus;useconfig;{"code":"BC_Insemination","status":"ENABLE111"};#获取任务项配置-1.3 更新任务状态-status非法场景
-/api/v1/tenantsetting/task/;updateStatus;status_long_outside_10;{};#获取任务项配置-1.3 更新任务状态-status长度超长>10
-/api/v1/tenantsetting/task/;updateStatus;useconfig;{"code":"BC_Insemination123","status":"ENABLE"};#获取任务项配置-1.3 更新任务状态-code不存在场景
-/api/v1/tenantsetting/task/;updateStatus;code_is_null;{};#获取任务项配置-1.3 更新任务状态-code为空
-/api/v1/tenantsetting/task/;updateStatus;status_is_null;{};#获取任务项配置-1.3 更新任务状态-status为空
+#/api/v1/tenantsetting/task/;updateStatus;smoke;{};#获取任务项配置-1.3 更新任务状态-smoke
+#/api/v1/tenantsetting/task/;updateStatus;useconfig;{"code":"BC_Insemination","status":"ENABLE111"};#获取任务项配置-1.3 更新任务状态-status非法场景
+#/api/v1/tenantsetting/task/;updateStatus;status_long_outside_10;{};#获取任务项配置-1.3 更新任务状态-status长度超长>10
+#/api/v1/tenantsetting/task/;updateStatus;useconfig;{"code":"BC_Insemination123","status":"ENABLE"};#获取任务项配置-1.3 更新任务状态-code不存在场景
+#/api/v1/tenantsetting/task/;updateStatus;code_is_null;{};#获取任务项配置-1.3 更新任务状态-code为空
+#/api/v1/tenantsetting/task/;updateStatus;status_is_null;{};#获取任务项配置-1.3 更新任务状态-status为空
 #
-/api/v1/tenantsetting/task/;resetStatus;smoke;{};#1.1.获取任务项配置-1.4任务项配置恢复默认-smoke
+#/api/v1/tenantsetting/task/;resetStatus;smoke;{};#1.1.获取任务项配置-1.4任务项配置恢复默认-smoke
 ############################################################################
 ############################################################################
 #/api/v1/tenantsetting/task/;queryEnabledList;smoke;{};#2. 任务配置模块-2.1 获取配置任务项列表-smoke
 #
-/api/v1/taskconfig/;queryConfigTemplate;useconfig;{"code":"BC_Farrow"};#2. 任务配置模块-2.2 获取任务配置内容模板-smoke
-/api/v1/taskconfig/;queryConfigTemplate;useconfig;{"code":"BC123"};#2. 任务配置模块-2.2 获取任务配置内容模板-code不存在场景
-/api/v1/taskconfig/;queryConfigTemplate;code_is_null;{};#2. 任务配置模块-2.2 获取任务配置内容模板-code为空场景
+#/api/v1/taskconfig/;queryConfigTemplate;useconfig;{"code":"BC_Farrow"};#2. 任务配置模块-2.2 获取任务配置内容模板-smoke
+#/api/v1/taskconfig/;queryConfigTemplate;useconfig;{"code":"BC123"};#2. 任务配置模块-2.2 获取任务配置内容模板-code不存在场景
+#/api/v1/taskconfig/;queryConfigTemplate;code_is_null;{};#2. 任务配置模块-2.2 获取任务配置内容模板-code为空场景
 #
 /api/v1/taskconfig/;queryConfig;useconfig;{"code":"BC_Farrow"};#2. 任务配置模块-2.3 获取任务配置内容-smoke
 /api/v1/taskconfig/;queryConfig;useconfig;{"code":"BC123"};#2. 任务配置模块-2.3 获取任务配置内容-code不存在场景
 ############################################################################
 ############################################################################
-#/api/v1/taskconfig/;updateConfig;smoke;{};#2. 任务配置模块-2.4 更新配置-smoke
+/api/v1/taskconfig/;updateConfig;smoke;{};#2. 任务配置模块-2.4 更新配置-smoke
 #
-#/api/v1/taskconfig/;updateConfig;operationUnitId_is_null;{};#2. 任务配置模块-2.4 更新配置-operationUnitId字段为空场景
-#/api/v1/taskconfig/;operationUnitId;code_is_null;{};#2. 任务配置模块-2.4 更新配置-code字段为空场景
-#/api/v1/taskconfig/;updateConfig;configType_is_null;{};#2. 任务配置模块-2.4 更新配置-configType字段为空场景
-#/api/v1/taskconfig/;updateConfig;locationGroup_is_null;{};#2. 任务配置模块-2.4 更新配置-locationGroup字段为空场景
-#/api/v1/taskconfig/;updateConfig;timeGroup_is_null;{};#2. 任务配置模块-2.4 更新配置-timeGroup字段为空场景
-#/api/v1/taskconfig/;updateConfig;taskDisplayTimeRange_is_null;{};#2. 任务配置模块-2.4 更新配置-taskDisplayTimeRange字段为空场景
-#/api/v1/taskconfig/;updateConfig;sowMaxCount_is_null;{};#2. 任务配置模块-2.4 更新配置-sowMaxCount字段为空场景
-#/api/v1/taskconfig/;updateConfig;processCode_is_null;{};#2. 任务配置模块-2.4 更新配置-processCode字段为空场景
-#/api/v1/taskconfig/;updateConfig;unexecuteAlarmTimeOut_is_null;{};#2. 任务配置模块-2.4 更新配置-unexecuteAlarmTimeOut字段为空场景
-#/api/v1/taskconfig/;updateConfig;unexecuteUpgradeAlarmTimeOut_is_null;{};#2. 任务配置模块-2.4 更新配置-unexecuteUpgradeAlarmTimeOut字段为空场景
-#/api/v1/taskconfig/;updateConfig;executeAlarmTimeOut_is_null;{};#2. 任务配置模块-2.4 更新配置-executeAlarmTimeOut字段为空场景
-#/api/v1/taskconfig/;updateConfig;targetCodeList_is_null;{};#2. 任务配置模块-2.4 更新配置-capabilityCodeList字段为空场景
-#/api/v1/taskconfig/;updateConfig;capabilityCodeList_is_null;{};#2. 任务配置模块-2.4 更新配置-capabilityCodeList字段为空场景
+/api/v1/taskconfig/;updateConfig;operationUnitId_is_null;{};#2. 任务配置模块-2.4 更新配置-operationUnitId字段为空场景
+/api/v1/taskconfig/;updateConfig;code_is_null;{};#2. 任务配置模块-2.4 更新配置-code字段为空场景
+/api/v1/taskconfig/;updateConfig;configType_is_null;{};#2. 任务配置模块-2.4 更新配置-configType字段为空场景
+/api/v1/taskconfig/;updateConfig;locationGroup_is_null;{};#2. 任务配置模块-2.4 更新配置-locationGroup字段为空场景
+/api/v1/taskconfig/;updateConfig;timeGroup_is_null;{};#2. 任务配置模块-2.4 更新配置-timeGroup字段为空场景
+/api/v1/taskconfig/;updateConfig;taskDisplayTimeRange_is_null;{};#2. 任务配置模块-2.4 更新配置-taskDisplayTimeRange字段为空场景
+/api/v1/taskconfig/;updateConfig;sowMaxCount_is_null;{};#2. 任务配置模块-2.4 更新配置-sowMaxCount字段为空场景
+/api/v1/taskconfig/;updateConfig;processCode_is_null;{};#2. 任务配置模块-2.4 更新配置-processCode字段为空场景
+/api/v1/taskconfig/;updateConfig;unexecuteAlarmTimeOut_is_null;{};#2. 任务配置模块-2.4 更新配置-unexecuteAlarmTimeOut字段为空场景
+/api/v1/taskconfig/;updateConfig;unexecuteUpgradeAlarmTimeOut_is_null;{};#2. 任务配置模块-2.4 更新配置-unexecuteUpgradeAlarmTimeOut字段为空场景
+/api/v1/taskconfig/;updateConfig;executeAlarmTimeOut_is_null;{};#2. 任务配置模块-2.4 更新配置-executeAlarmTimeOut字段为空场景
+/api/v1/taskconfig/;updateConfig;targetCodeList_is_null;{};#2. 任务配置模块-2.4 更新配置-capabilityCodeList字段为空场景
+/api/v1/taskconfig/;updateConfig;capabilityCodeList_is_null;{};#2. 任务配置模块-2.4 更新配置-capabilityCodeList字段为空场景
 #
-#/api/v1/taskconfig/;updateConfig;operationUnitId_long_outside_50;{};#2. 任务配置模块-2.4 更新配置-operationUnitId字段超长>50
-#/api/v1/taskconfig/;updateConfig;configType_long_outside_10;{};#2. 任务配置模块-2.4 更新配置-configType字段超长>10
-#/api/v1/taskconfig/;updateConfig;locationGroup_long_outside_50;{};#2. 任务配置模块-2.4 更新配置-locationGroup字段超长>50
-#/api/v1/taskconfig/;updateConfig;timeGroup_long_outside_50;{};#2. 任务配置模块-2.4 更新配置-timeGroup字段超长>50
-#/api/v1/taskconfig/;updateConfig;taskDisplayTimeRange_long_outside_10;{};#2. 任务配置模块-2.4 更新配置-taskDisplayTimeRange字段超长>10
-#/api/v1/taskconfig/;updateConfig;sowMaxCount_long_side_10;{};#2. 任务配置模块-2.4 更新配置-sowMaxCount字段超长>10
-#/api/v1/taskconfig/;updateConfig;processCode_long_outside_50;{};#2. 任务配置模块-2.4 更新配置-processCode字段超长>50
-#/api/v1/taskconfig/;updateConfig;unexecuteAlarmTimeOut_long_outside_10;{};#2. 任务配置模块-2.4 更新配置-unexecuteAlarmTimeOut字段超长>10
-#/api/v1/taskconfig/;updateConfig;unexecuteUpgradeAlarmTimeOut_long_outside_10;{};#2. 任务配置模块-2.4 更新配置-unexecuteUpgradeAlarmTimeOut字段超长>10
-#/api/v1/taskconfig/;updateConfig;executeAlarmTimeOut_long_outside_10;{};#2. 任务配置模块-2.4 更新配置-executeAlarmTimeOut字段超长>10
+/api/v1/taskconfig/;updateConfig;operationUnitId_long_outside_50;{};#2. 任务配置模块-2.4 更新配置-operationUnitId字段超长>50
+/api/v1/taskconfig/;updateConfig;configType_long_outside_10;{};#2. 任务配置模块-2.4 更新配置-configType字段超长>10
+/api/v1/taskconfig/;updateConfig;locationGroup_long_outside_50;{};#2. 任务配置模块-2.4 更新配置-locationGroup字段超长>50
+/api/v1/taskconfig/;updateConfig;timeGroup_long_outside_50;{};#2. 任务配置模块-2.4 更新配置-timeGroup字段超长>50
+/api/v1/taskconfig/;updateConfig;taskDisplayTimeRange_long_outside_10;{};#2. 任务配置模块-2.4 更新配置-taskDisplayTimeRange字段超长>10
+/api/v1/taskconfig/;updateConfig;sowMaxCount_long_side_10;{};#2. 任务配置模块-2.4 更新配置-sowMaxCount字段超长>10
+/api/v1/taskconfig/;updateConfig;processCode_long_outside_50;{};#2. 任务配置模块-2.4 更新配置-processCode字段超长>50
+/api/v1/taskconfig/;updateConfig;unexecuteAlarmTimeOut_long_outside_10;{};#2. 任务配置模块-2.4 更新配置-unexecuteAlarmTimeOut字段超长>10
+/api/v1/taskconfig/;updateConfig;unexecuteUpgradeAlarmTimeOut_long_outside_10;{};#2. 任务配置模块-2.4 更新配置-unexecuteUpgradeAlarmTimeOut字段超长>10
+/api/v1/taskconfig/;updateConfig;executeAlarmTimeOut_long_outside_10;{};#2. 任务配置模块-2.4 更新配置-executeAlarmTimeOut字段超长>10
 #
 #/api/v1/taskconfig/;updateConfig;smoke;{};#2. 任务配置模块-2.4 更新配置-smoke
 #/api/v1/taskconfig/;updateConfig;smoke;{};#2. 任务配置模块-2.4 更新配置-smoke

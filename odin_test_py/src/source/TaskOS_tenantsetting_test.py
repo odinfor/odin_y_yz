@@ -459,7 +459,6 @@ def main():
         reqdata_list.append(data)
         rspdata_list.append(rsp[1])
         is_pass_list.append(rsp[0])
-    print(is_pass_list)
     # 写入文件
     use_excel.api_result_excel(casename=casename_list, comment=comment_list, data_request=reqdata_list,
                                data_return=rspdata_list,is_pass=is_pass_list, len=len(casename_list))

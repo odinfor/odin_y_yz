@@ -1,0 +1,206 @@
+# -*- coding: utf-8 -*-
+# @Time    : 2018-11-27 19:26
+# @Author  : odin_y
+# @Email   : 
+# @File    : Table_To_SQL.py
+# @Software: PyCharm
+# @Comment : 文件数据转入SQL
+import xlrd
+from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, Text, Boolean
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+from base import Config, Logging
+
+
+base = declarative_base()   # 创建基类
+
+class ParamsAllTable(base):
+    """# 接口请求配置保存表,一直保存,只能主动清除"""
+    __tablename__ = 'params_all_table'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    caseID = Column(Integer, nullable=True, comment="测试案例ID")
+    casename = Column(String(20), nullable=False, default='smoke', comment="测试案例名称")
+    isrun = Column(String(5), nullable=False, default='True', comment="是否执行该案例")
+    host = Column(String(50), nullable=True, comment="host地址")
+    url = Column(String(50), nullable=True, comment="接口地址")
+    comment = Column(Text, nullable=True, comment="测试场景说明")
+    params_1 = Column(String(50), nullable=True, default=None, comment="请求入参")
+    params_2 = Column(String(50), nullable=True, default=None, comment="请求入参")
+    params_3 = Column(String(50), nullable=True, default=None, comment="请求入参")
+    params_4 = Column(String(50), nullable=True, default=None, comment="请求入参")
+    params_5 = Column(String(50), nullable=True, default=None, comment="请求入参")
+    params_6 = Column(String(50), nullable=True, default=None, comment="请求入参")
+    params_7 = Column(String(50), nullable=True, default=None, comment="请求入参")
+    params_8 = Column(String(50), nullable=True, default=None, comment="请求入参")
+    params_9 = Column(String(50), nullable=True, default=None, comment="请求入参")
+    params_10 = Column(String(50), nullable=True, default=None, comment="请求入参")
+    params_11 = Column(String(50), nullable=True, default=None, comment="请求入参")
+
+    def __repr__(self):
+        return "<ParamsAllTable(caseID=%, casename=%, isrun=%, host=%, url=%, comment=%, params_1=%, params_2=%, " \
+               "params_3=%, params_4=%, params_5=%,params_6=%, params_7=%, params_8=%, params_9=%, params_10=%, " \
+               "params_11=%)>"%(ParamsAllTable.caseID, ParamsAllTable.casename, ParamsAllTable.isrun,
+                                ParamsAllTable.host, ParamsAllTable.url, ParamsAllTable.comment,
+                                ParamsAllTable.params_1, ParamsAllTable.params_2, ParamsAllTable.params_3,
+                                ParamsAllTable.params_4, ParamsAllTable.params_5,
+                                ParamsAllTable.params_6,ParamsAllTable.params_7,ParamsAllTable.params_8,
+                                ParamsAllTable.params_9, ParamsAllTable.params_10,
+                                ParamsAllTable.params_11)
+
+
+class ParamsOnceTable(base):
+    """# 接口请求配置保存表,读取配置时触发清除,重新写入"""
+    __tablename__ = 'params_once_table'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    caseID = Column(Integer, nullable=True, comment="测试案例ID")
+    casename = Column(String(20), nullable=False, default='smoke', comment="测试案例名称")
+    isrun = Column(String(5), nullable=False, default='True', comment="是否执行该案例")
+    host = Column(String(50), nullable=False, comment="host地址")
+    url = Column(String(50), nullable=True, comment="接口地址")
+    comment = Column(Text, nullable=True, comment="测试场景说明")
+    params_1 = Column(String(50), nullable=True, default=None, comment="请求入参")
+    params_2 = Column(String(50), nullable=True, default=None, comment="请求入参")
+    params_3 = Column(String(50), nullable=True, default=None, comment="请求入参")
+    params_4 = Column(String(50), nullable=True, default=None, comment="请求入参")
+    params_5 = Column(String(50), nullable=True, default=None, comment="请求入参")
+    params_6 = Column(String(50), nullable=True, default=None, comment="请求入参")
+    params_7 = Column(String(50), nullable=True, default=None, comment="请求入参")
+    params_8 = Column(String(50), nullable=True, default=None, comment="请求入参")
+    params_9 = Column(String(50), nullable=True, default=None, comment="请求入参")
+    params_10 = Column(String(50), nullable=True, default=None, comment="请求入参")
+    params_11 = Column(String(50), nullable=True, default=None, comment="请求入参")
+
+    def __repr__(self):
+        return "<ParamsOnceTable(caseID=%, casename=%, isrun=%, host=%, url=%, comment=%, params_1=%, params_2=%, " \
+               "params_3=%, params_4=%, params_5=%,params_6=%, params_7=%, params_8=%, params_9=%, params_10=%, " \
+               "params_11=%)>"%(ParamsOnceTable.caseID, ParamsOnceTable.casename, ParamsOnceTable.isrun,
+                                ParamsOnceTable.host, ParamsOnceTable.url, ParamsOnceTable.comment,
+                                ParamsOnceTable.params_1, ParamsOnceTable.params_2, ParamsOnceTable.params_3,
+                                ParamsOnceTable.params_4, ParamsOnceTable.params_5, ParamsOnceTable.params_6,
+                                ParamsOnceTable.params_7,ParamsOnceTable.params_8, ParamsOnceTable.params_9,
+                                ParamsOnceTable.params_10, ParamsOnceTable.params_11)
+
+
+class CheckOnceTable(base):
+    """# 接口校验配置保存表,读取配置时触发清除,重新写入"""
+    __tablename__ = 'check_once_table'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    caseID = Column(Integer, nullable=True, comment="测试案例ID")
+    casename = Column(String(20), nullable=True, default='smoke', comment="测试案例名称")
+    comment = Column(Text, nullable=True, comment="测试场景说明")
+    code = Column(Integer, default=200, comment="响应返回预期code")
+    check_1 = Column(String(50), nullable=True, default=None, comment="校验参数")
+    check_2 = Column(String(50), nullable=True, default=None, comment="校验参数")
+    check_3 = Column(String(50), nullable=True, default=None, comment="校验参数")
+    check_4 = Column(String(50), nullable=True, default=None, comment="校验参数")
+    check_5 = Column(String(50), nullable=True, default=None, comment="校验参数")
+    check_6 = Column(String(50), nullable=True, default=None, comment="校验参数")
+    check_7 = Column(String(50), nullable=True, default=None, comment="校验参数")
+    check_8 = Column(String(50), nullable=True, default=None, comment="校验参数")
+    check_9 = Column(String(50), nullable=True, default=None, comment="校验参数")
+    check_10 = Column(String(50), nullable=True, default=None, comment="校验参数")
+    check_11 = Column(String(50), nullable=True, default=None, comment="校验参数")
+
+    def __repr__(self):
+        return "<CheckOnceTable(caseID=%, casename=%, code=%, check_1=%, check_2=%, check_3=%, check_4=%, check_5=%,check_6=%, " \
+               "check_7=%, check_8=%, check_9=%, check_10=%, check_11=%)>"%(CheckOnceTable.caseID, CheckOnceTable.casename,
+                CheckOnceTable.code, CheckOnceTable.check_1,CheckOnceTable.check_2, CheckOnceTable.check_3,
+                CheckOnceTable.check_4, CheckOnceTable.check_5, CheckOnceTable.check_6, CheckOnceTable.check_7,
+                CheckOnceTable.check_8,CheckOnceTable.check_9, CheckOnceTable.check_10, CheckOnceTable.check_11)
+
+
+class CheckAllTable(base):
+    """# 接口校验配置保存表,一直保存,只能主动清除"""
+    __tablename__ = 'check_all_table'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    caseID = Column(Integer, nullable=True, comment="测试案例ID")
+    casename = Column(String(20), nullable=True, default='smoke', comment="测试案例名称")
+    comment = Column(Text, nullable=True, comment="测试场景说明")
+    code = Column(Integer, default=200, comment="响应返回预期code")
+    check_1 = Column(String(50), nullable=True, default=None, comment="校验参数")
+    check_2 = Column(String(50), nullable=True, default=None, comment="校验参数")
+    check_3 = Column(String(50), nullable=True, default=None, comment="校验参数")
+    check_4 = Column(String(50), nullable=True, default=None, comment="校验参数")
+    check_5 = Column(String(50), nullable=True, default=None, comment="校验参数")
+    check_6 = Column(String(50), nullable=True, default=None, comment="校验参数")
+    check_7 = Column(String(50), nullable=True, default=None, comment="校验参数")
+    check_8 = Column(String(50), nullable=True, default=None, comment="校验参数")
+    check_9 = Column(String(50), nullable=True, default=None, comment="校验参数")
+    check_10 = Column(String(50), nullable=True, default=None, comment="校验参数")
+    check_11 = Column(String(50), nullable=True, default=None, comment="校验参数")
+
+    def __repr__(self):
+        return "<CheckAllTable(caseID=%, casename=%, code=%, check_1=%, check_2=%, check_3=%, check_4=%, check_5=%,check_6=%, " \
+               "check_7=%, check_8=%, check_9=%, check_10=%, check_11=%)>"%(CheckAllTable.caseID, CheckAllTable.casename,
+                CheckAllTable.code, CheckAllTable.check_1, CheckAllTable.check_2, CheckAllTable.check_3,
+                CheckAllTable.check_4, CheckAllTable.check_5, CheckAllTable.check_6, CheckAllTable.check_7,
+                CheckAllTable.check_8, CheckAllTable.check_9, CheckAllTable.check_10, CheckAllTable.check_11)
+
+
+class RspTable(base):
+    """# 响应结果表"""
+    __tablename__ = 'rsp_table'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    caseID = Column(Integer, nullable=True, comment="测试案例id")
+    casename = Column(String(20), nullable=True, default='smoke', comment="测试case名称")
+    comment = Column(Text, nullable=True, comment="测试场景说明")
+    rsp = Column(String(500), nullable=True, default=None, comment="接口响应返回")
+    is_pass = Column(Boolean, nullable=True, default=False, comment="是否通过")
+    log = Column(String(500), nullable=True, default=None, comment="校验说明")
+
+    def __repr__(self):
+        return "<RspTable(caseID=%, casename=%, comment=%, rsp=%, is_pass=%, log=%>"%(RspTable.caseID, RspTable.casename,
+                                                                                         RspTable.comment, RspTable.rsp,
+                                                                                         RspTable.is_pass, RspTable.log)
+
+class TestTable(base):
+    """# 响应结果表"""
+    __tablename__ = 'test_table'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    caseID = Column(Integer, nullable=True, comment="测试案例id")
+    casename = Column(String(20), nullable=True, default='smoke', comment="测试case名称")
+
+    def __repr__(self):
+        return "<TestTable(caseID=%, casename=%>"%(TestTable.caseID, TestTable.casename)
+
+
+class SqlalchemyControlDB:
+    """# sqlalchemy 操作db"""
+    def __init__(self):
+        conf = Config()
+        if conf.operating_environment == 'test':
+            self.db_adress = 'mysql+pymysql://{}:{}@{}:{}/{}'.format(conf.db_test_username, conf.db_test_password,
+                                                                     conf.db_test_host, conf.db_test_port,
+                                                                     conf.db_test_name)
+        elif conf.operating_environment == 'dev':
+            self.db_adress = 'mysql+pymysql://{}:{}@{}:{}/{}'.format(conf.db_dev_username, conf.db_dev_password,
+                                                                     conf.db_dev_host, conf.db_dev_port,
+                                                                     conf.db_dev_name)
+        elif conf.operating_environment == 'local':
+            self.db_adress = 'mysql+pymysql://{}:{}@{}:{}/{}'.format(conf.db_local_username, conf.db_local_password,
+                                                                     conf.db_local_host, conf.db_local_port,
+                                                                     conf.db_local_name)
+        # 初始化连接mysqldb, 不显示sql logging
+        self.engine = create_engine(self.db_adress, echo=True)  # 建立数据库
+        db_session = sessionmaker(bind=self.engine)  # 创建连接
+        self.session = db_session()
+
+    def creat_all_table(self):
+        base.metadata.create_all(self.engine)
+
+    def insertdict(self):
+        dict1 = {'caseID': 2, 'casename':'smoke', 'comment': '', 'rsp': 'this is rsp',
+                 'is_pass': True, 'log': 'this is log'}
+        obj = RspTable(**dict1)
+        try:
+            self.session.add(obj)
+        except:
+            self.session.roll_back()
+        else:
+            self.session.commit()
+
+
+if __name__ == '__main__':
+    run = SqlalchemyControlDB()
+    # run.creat_all_table()
+    run.insertdict()
