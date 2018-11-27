@@ -12,8 +12,10 @@ from sqlalchemy.ext.declarative import declarative_base
 from base import Config, Logging
 import os, platform
 
-
 base = declarative_base()   # 创建基类
+conf = Config()
+log = Logging()
+
 
 class ParamsAllTable(base):
     """# 接口请求配置保存表,一直保存,只能主动清除"""
@@ -154,6 +156,7 @@ class RspTable(base):
                                                                                          RspTable.comment, RspTable.rsp,
                                                                                          RspTable.is_pass, RspTable.log)
 
+
 class TestTable(base):
     """# 响应结果表"""
     __tablename__ = 'test_table'
@@ -171,8 +174,6 @@ def get_excel_content(filename='TaskOs_api_refdata.xlsx'):
     :param filename:文件路径
     :return: 返回存储excel内容列表
     """
-    conf = Config()
-    log = Logging()
     filepath = os.path.join(conf.refdata_dir, filename)
     system = platform.system()  # 获取系统环境
     if system == 'Windows' or system == 'Linux':
@@ -242,21 +243,19 @@ class SqlalchemyControlDB:
         base.metadata.create_all(self.engine)
 
     def insertdict(self):
-        dict1 = {'caseID': 2, 'casename':'smoke', 'comment': '', 'rsp': 'this is rsp',
-                 'is_pass': True, 'log': 'this is log'}
-        obj = RspTable(**dict1)
-        try:
-            self.session.add(obj)
-        except:
-            self.session.roll_back()
-        else:
-            self.session.commit()
+        excelfile = get_excel_content()
+        for line in excelfile:
+            param_obj = ParamsOnceTable(**line['params_sheet'])
+            check_obj = CheckOnceTable(**line['check_sheet'])
+            try:
+                self.session.add(param_obj)
+                self.session.add(check_obj)
+            except:
+                self.session.roll_back()
+        self.session.commit()
 
 
 if __name__ == '__main__':
-    # run = SqlalchemyControlDB()
-    # # run.creat_all_table()
-    # run.insertdict()
-    test = get_excel_content()
-    for i in test:
-        print(i)
+    run = SqlalchemyControlDB()
+    # run.creat_all_table()
+    run.insertdict()
