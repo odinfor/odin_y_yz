@@ -10,6 +10,7 @@ from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, 
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from base import Config, Logging
+import os, platform
 
 
 base = declarative_base()   # 创建基类
@@ -164,6 +165,58 @@ class TestTable(base):
         return "<TestTable(caseID=%, casename=%>"%(TestTable.caseID, TestTable.casename)
 
 
+def get_excel_content(filename='TaskOs_api_refdata.xlsx'):
+    """
+    # 解析excel文件
+    :param filename:文件路径
+    :return: 返回存储excel内容列表
+    """
+    conf = Config()
+    log = Logging()
+    filepath = os.path.join(conf.refdata_dir, filename)
+    system = platform.system()  # 获取系统环境
+    if system == 'Windows' or system == 'Linux':
+        # Windows、Linux系统环境
+        openfile = xlrd.open_workbook(filename=filepath, encoding_override='utf-8')
+    elif system == 'Darwin':
+        # MacOSX系统环境
+        openfile = xlrd.open_workbook(filename=filepath)
+    else:
+        log.error("不支持的系统环境")
+        return False
+    # 配置参数sheet
+    table_params = openfile.sheet_by_name('input')
+    rows_params = table_params.nrows        # 行
+    ncols_params = table_params.ncols       # 列
+
+    # 配置校验sheet
+    table_check = openfile.sheet_by_name('check')
+    rows_check = table_check.nrows
+    ncols_check = table_check.ncols
+
+    # excel头行
+    row_params_head = table_params.row_values(1)
+    row_check_head = table_check.row_values(1)
+
+    # 去除空单元格
+    while '' in row_params_head:
+        row_params_head.remove('')
+    while '' in row_check_head:
+        row_check_head.remove('')
+
+    # excel params sheet配置内容
+    for rownum in range(2, rows_params):
+        row = table_params.row_values(rownum)
+        # 组合头字段与行单元格
+        dictparams = dict(zip(row_params_head, row))
+        # excel check sheet配置内容
+        row = table_check.row_values(rownum)
+        dictcheck = dict(zip(row_check_head, row))
+
+        dict_excel = {'params_sheet': dictparams, 'check_sheet': dictcheck}
+        yield dict_excel
+
+
 class SqlalchemyControlDB:
     """# sqlalchemy 操作db"""
     def __init__(self):
@@ -201,6 +254,9 @@ class SqlalchemyControlDB:
 
 
 if __name__ == '__main__':
-    run = SqlalchemyControlDB()
-    # run.creat_all_table()
-    run.insertdict()
+    # run = SqlalchemyControlDB()
+    # # run.creat_all_table()
+    # run.insertdict()
+    test = get_excel_content()
+    for i in test:
+        print(i)
