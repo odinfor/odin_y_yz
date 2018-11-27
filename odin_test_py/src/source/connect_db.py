@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, Text
+from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, Text, Boolean
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from base import Config, Base_Method

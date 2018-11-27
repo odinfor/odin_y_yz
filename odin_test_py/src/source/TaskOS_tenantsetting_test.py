@@ -383,13 +383,13 @@ class TestTenantSetting():
         # 发送接口请求
         rsp = requests.post(url=url, data=json.dumps(data), headers=headers)
         rsp_json = rsp.json()
+        self.log.info('执行{}, \n接口请求地址:{},\n请求入参data:{},\n接口返回rsp={}'.format(self.run_testcase.__name__,
+                                                                            url, data, rsp.json()))
         try:
             rsp.raise_for_status()
         except Exception as e:
             raise e
         else:
-            self.log.info('执行{}, \n接口请求地址:{},\n请求入参data:{},\n接口返回rsp={}'.format(self.run_testcase.__name__,
-                                                                           url, data, rsp.json()))
             if casename == 'smoke' or casename == 'useconfig':
                 self.error_code = rsp_json['error_code']
                 self.error_msg = rsp_json['error_msg']
@@ -399,7 +399,7 @@ class TestTenantSetting():
                     self.error_code = rsp_json['error_code']
                     self.error_msg = rsp_json['error_msg']
                     return False, rsp_json
-            elif casename.find('_long_outside_') > 0:
+            elif '_long_outside_' in casename:
                 if rsp.json()['error_code'] == 30100:
                     self.error_code = rsp_json['error_code']
                     self.error_msg = rsp_json['error_msg']
@@ -408,7 +408,7 @@ class TestTenantSetting():
                     self.error_code = rsp_json['error_code']
                     self.error_msg = rsp_json['error_msg']
                     return False, rsp_json
-            elif casename.find('_is_null') > 0:
+            elif '_is_null' in casename:
                 if rsp.json()['error_code'] == 30100:
                     self.error_code = rsp_json['error_code']
                     self.error_msg = rsp_json['error_msg']
@@ -459,6 +459,7 @@ def main():
         reqdata_list.append(data)
         rspdata_list.append(rsp[1])
         is_pass_list.append(rsp[0])
+    print(is_pass_list)
     # 写入文件
     use_excel.api_result_excel(casename=casename_list, comment=comment_list, data_request=reqdata_list,
                                data_return=rspdata_list,is_pass=is_pass_list, len=len(casename_list))

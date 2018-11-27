@@ -436,6 +436,7 @@ class UseingExcel():
         ":param fontid:字体颜色id
         :param bold:字体是否加粗<默认不加粗>
         :param cneter:单元格居中方式,<默认不设置,'horz':水平居中,'vert':垂直居中,'all':水平和垂直居中>
+        :param wrap:自动换行<0关闭,1打开>
         """
 
         # 单元格背景颜色设置为黑色
@@ -552,13 +553,13 @@ class UseingExcel():
                     # casename
                     sheet1.write(row_start, 1, casename[indexid-1], self.set_style(1, 0, center='vert'))
                     # 写入说明
-                    sheet1.write(row_start, 2, comment[indexid-1], self.set_style(1, 0, center='vert'))
+                    sheet1.write(row_start, 2, comment[indexid-1], self.set_style(1, 0, center='vert', wrap=1))
                     # 写入参数
                     sheet1.write(row_start, 3, str(data_request[indexid-1]), self.set_style(1, 0, center='vert', wrap=1))
                     # 写入返回
                     sheet1.write(row_start, 4, str(data_return[indexid-1]), self.set_style(1, 0, center='vert', wrap=1))
                     # 写入是否通过,通过则标绿色底色,未通过则标红色底色
-                    if is_pass == 'pass':
+                    if is_pass[indexid-1]:
                         sheet1.write(row_start, 5, '√', self.set_style(3, 0, center='all'))
                     else:
                         sheet1.write(row_start, 5, '×', self.set_style(2, 0, center='all'))
