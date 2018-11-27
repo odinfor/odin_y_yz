@@ -7,10 +7,11 @@
 # @Comment : 文件数据转入SQL
 import xlrd
 from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, Text, Boolean
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, query
 from sqlalchemy.ext.declarative import declarative_base
 from base import Config, Logging
 import os, platform
+import time, datetime
 
 base = declarative_base()   # 创建基类
 conf = Config()
@@ -21,9 +22,9 @@ class ParamsAllTable(base):
     """# 接口请求配置保存表,一直保存,只能主动清除"""
     __tablename__ = 'params_all_table'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    caseID = Column(Integer, nullable=True, comment="测试案例ID")
+    caseID = Column(String(20), nullable=False, comment="测试案例ID")
     casename = Column(String(20), nullable=False, default='smoke', comment="测试案例名称")
-    isrun = Column(String(5), nullable=False, default='True', comment="是否执行该案例")
+    run = Column(String(5), nullable=False, default='True', comment="是否执行该案例")
     host = Column(String(50), nullable=True, comment="host地址")
     url = Column(String(50), nullable=True, comment="接口地址")
     comment = Column(Text, nullable=True, comment="测试场景说明")
@@ -40,9 +41,9 @@ class ParamsAllTable(base):
     params_11 = Column(String(50), nullable=True, default=None, comment="请求入参")
 
     def __repr__(self):
-        return "<ParamsAllTable(caseID=%, casename=%, isrun=%, host=%, url=%, comment=%, params_1=%, params_2=%, " \
+        return "<ParamsAllTable(caseID=%, casename=%, run=%, host=%, url=%, comment=%, params_1=%, params_2=%, " \
                "params_3=%, params_4=%, params_5=%,params_6=%, params_7=%, params_8=%, params_9=%, params_10=%, " \
-               "params_11=%)>"%(ParamsAllTable.caseID, ParamsAllTable.casename, ParamsAllTable.isrun,
+               "params_11=%)>"%(ParamsAllTable.caseID, ParamsAllTable.casename, ParamsAllTable.run,
                                 ParamsAllTable.host, ParamsAllTable.url, ParamsAllTable.comment,
                                 ParamsAllTable.params_1, ParamsAllTable.params_2, ParamsAllTable.params_3,
                                 ParamsAllTable.params_4, ParamsAllTable.params_5,
@@ -55,9 +56,9 @@ class ParamsOnceTable(base):
     """# 接口请求配置保存表,读取配置时触发清除,重新写入"""
     __tablename__ = 'params_once_table'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    caseID = Column(Integer, nullable=True, comment="测试案例ID")
+    caseID = Column(String(20), nullable=False, comment="测试案例ID")
     casename = Column(String(20), nullable=False, default='smoke', comment="测试案例名称")
-    isrun = Column(String(5), nullable=False, default='True', comment="是否执行该案例")
+    run = Column(String(5), nullable=False, default='True', comment="是否执行该案例")
     host = Column(String(50), nullable=False, comment="host地址")
     url = Column(String(50), nullable=True, comment="接口地址")
     comment = Column(Text, nullable=True, comment="测试场景说明")
@@ -74,9 +75,9 @@ class ParamsOnceTable(base):
     params_11 = Column(String(50), nullable=True, default=None, comment="请求入参")
 
     def __repr__(self):
-        return "<ParamsOnceTable(caseID=%, casename=%, isrun=%, host=%, url=%, comment=%, params_1=%, params_2=%, " \
+        return "<ParamsOnceTable(caseID=%, casename=%, run=%, host=%, url=%, comment=%, params_1=%, params_2=%, " \
                "params_3=%, params_4=%, params_5=%,params_6=%, params_7=%, params_8=%, params_9=%, params_10=%, " \
-               "params_11=%)>"%(ParamsOnceTable.caseID, ParamsOnceTable.casename, ParamsOnceTable.isrun,
+               "params_11=%)>"%(ParamsOnceTable.caseID, ParamsOnceTable.casename, ParamsOnceTable.run,
                                 ParamsOnceTable.host, ParamsOnceTable.url, ParamsOnceTable.comment,
                                 ParamsOnceTable.params_1, ParamsOnceTable.params_2, ParamsOnceTable.params_3,
                                 ParamsOnceTable.params_4, ParamsOnceTable.params_5, ParamsOnceTable.params_6,
@@ -88,10 +89,10 @@ class CheckOnceTable(base):
     """# 接口校验配置保存表,读取配置时触发清除,重新写入"""
     __tablename__ = 'check_once_table'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    caseID = Column(Integer, nullable=True, comment="测试案例ID")
+    caseID = Column(String(20), nullable=False, comment="测试案例ID")
     casename = Column(String(20), nullable=True, default='smoke', comment="测试案例名称")
     comment = Column(Text, nullable=True, comment="测试场景说明")
-    code = Column(Integer, default=200, comment="响应返回预期code")
+    code = Column(Integer, default=0, comment="响应返回预期code")
     check_1 = Column(String(50), nullable=True, default=None, comment="校验参数")
     check_2 = Column(String(50), nullable=True, default=None, comment="校验参数")
     check_3 = Column(String(50), nullable=True, default=None, comment="校验参数")
@@ -116,10 +117,10 @@ class CheckAllTable(base):
     """# 接口校验配置保存表,一直保存,只能主动清除"""
     __tablename__ = 'check_all_table'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    caseID = Column(Integer, nullable=True, comment="测试案例ID")
+    caseID = Column(String(20), nullable=False, comment="测试案例ID")
     casename = Column(String(20), nullable=True, default='smoke', comment="测试案例名称")
     comment = Column(Text, nullable=True, comment="测试场景说明")
-    code = Column(Integer, default=200, comment="响应返回预期code")
+    code = Column(Integer, default=0, comment="响应返回预期code")
     check_1 = Column(String(50), nullable=True, default=None, comment="校验参数")
     check_2 = Column(String(50), nullable=True, default=None, comment="校验参数")
     check_3 = Column(String(50), nullable=True, default=None, comment="校验参数")
@@ -144,7 +145,7 @@ class RspTable(base):
     """# 响应结果表"""
     __tablename__ = 'rsp_table'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    caseID = Column(Integer, nullable=True, comment="测试案例id")
+    caseID = Column(String(20), nullable=False, comment="测试案例id")
     casename = Column(String(20), nullable=True, default='smoke', comment="测试case名称")
     comment = Column(Text, nullable=True, comment="测试场景说明")
     rsp = Column(String(500), nullable=True, default=None, comment="接口响应返回")
@@ -161,7 +162,7 @@ class TestTable(base):
     """# 响应结果表"""
     __tablename__ = 'test_table'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    caseID = Column(Integer, nullable=True, comment="测试案例id")
+    caseID = Column(String(20), nullable=True, comment="测试案例id")
     casename = Column(String(20), nullable=True, default='smoke', comment="测试case名称")
 
     def __repr__(self):
@@ -172,7 +173,7 @@ def get_excel_content(filename='TaskOs_api_refdata.xlsx'):
     """
     # 解析excel文件
     :param filename:文件路径
-    :return: 返回存储excel内容列表
+    :return: 以生成器返回excel内容列表
     """
     filepath = os.path.join(conf.refdata_dir, filename)
     system = platform.system()  # 获取系统环境
@@ -234,8 +235,10 @@ class SqlalchemyControlDB:
             self.db_adress = 'mysql+pymysql://{}:{}@{}:{}/{}'.format(conf.db_local_username, conf.db_local_password,
                                                                      conf.db_local_host, conf.db_local_port,
                                                                      conf.db_local_name)
+
+    def connect_db(self):
         # 初始化连接mysqldb, 不显示sql logging
-        self.engine = create_engine(self.db_adress, echo=True)  # 建立数据库
+        self.engine = create_engine(self.db_adress, echo=False)  # 建立数据库
         db_session = sessionmaker(bind=self.engine)  # 创建连接
         self.session = db_session()
 
@@ -245,6 +248,8 @@ class SqlalchemyControlDB:
     def insertdict(self):
         excelfile = get_excel_content()
         for line in excelfile:
+            line['params_sheet']['caseID'] = '{}_{}'.format(int(time.time()), line['params_sheet']['caseID'])
+            line['check_sheet']['caseID'] = '{}_{}'.format(int(time.time()), line['check_sheet']['caseID'])
             param_obj = ParamsOnceTable(**line['params_sheet'])
             check_obj = CheckOnceTable(**line['check_sheet'])
             try:
@@ -254,8 +259,15 @@ class SqlalchemyControlDB:
                 self.session.roll_back()
         self.session.commit()
 
+    def query_db(self):
+        host = self.session.query(ParamsOnceTable.host).one()
+        return host
+
 
 if __name__ == '__main__':
     run = SqlalchemyControlDB()
+    run.connect_db()
     # run.creat_all_table()
     run.insertdict()
+    # host = run.query_db()
+    # print(host)

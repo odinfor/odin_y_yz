@@ -19,6 +19,8 @@ sys.path.append("..")
 # from .base import Logging, Config
 # from source.base import Logging, Config, UsingExcel
 from base import Logging, Config, UseingExcel
+import Table_To_SQL
+from sqlalchemy.orm import query
 
 
 
@@ -464,5 +466,52 @@ def main():
                                data_return=rspdata_list,is_pass=is_pass_list, len=len(casename_list))
 
 
+class NewRequests:
+    def __init__(self):
+        self.sqldb = Table_To_SQL.SqlalchemyControlDB()
+        self.sqldb.connect_db()
+        self.params_once_table = Table_To_SQL.ParamsOnceTable
+        self.check_once_table = Table_To_SQL.CheckOnceTable
+        self.params_all_table = Table_To_SQL.ParamsAllTable
+        self.check_all_table = Table_To_SQL.CheckAllTable
+        self.rsp_table = Table_To_SQL.RspTable
+
+        self.config = Config()
+        self.log = Logging()
+
+    def get_all_params_caseID(self, type='once'):
+        if type == 'once':
+            caseID = self.sqldb.session.query(self.params_once_table.caseID).all()
+            return caseID
+        elif type == 'all':
+            caseID = self.sqldb.session.query(self.params_all_table.caseID).all()
+            return caseID
+
+
+    def get_once_url(self):
+        cases = self.get_all_params_caseID()
+        print(cases)
+        for case in cases:
+            db_host = self.sqldb.session.query(self.params_once_table.host).filter(self.params_once_table.caseID == case[0])
+            db_url = self.sqldb.session.query(self.params_once_table.url).filter(self.params_once_table.url == case[0])
+            # host有数据使用该host地址
+            if db_host:
+                url = '{}/{}'.format(db_host, db_url)
+            # 没有使用config文件配置地址
+            else:
+                if self.config.operating_environment == 'test':
+                    url = '{}/{}'.format(db_host, self.config.test_host)
+                elif self.config.operating_environment == 'dev':
+                    url = '{}/{}'.format(db_host, self.config.dev_host)
+                elif self.config.operating_environment == 'local':
+                    url = '{}/{}'.format(db_host, self.config.local_host)
+        #======================================================================#
+        # 直接写请求，不返回
+
+
 if __name__ == '__main__':
-    main()
+    # main()
+    test = NewRequests()
+    url = test.get_once_url()
+    for i in url:
+        print('url-----', i)
