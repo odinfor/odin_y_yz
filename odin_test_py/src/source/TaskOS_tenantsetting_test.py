@@ -16,12 +16,11 @@ import sys
 current_dir = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(current_dir)
 sys.path.append("..")
-# from .base import Logging, Config
-# from source.base import Logging, Config, UsingExcel
 from base import Logging, Config, UseingExcel
 import Table_To_SQL
-from sqlalchemy.orm import query
-
+import datetime
+from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy.orm import Query
 
 
 def cut_off_rule(func):
@@ -466,6 +465,31 @@ def main():
                                data_return=rspdata_list,is_pass=is_pass_list, len=len(casename_list))
 
 
+class AlchemyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj.__class__, DeclarativeMeta):
+            # an SQLAlchemy class
+            fields = {}
+            for field in [x for x in dir(obj) if not x.startswith('_') and x != 'metadata']:
+                data = obj.__getattribute__(field)
+                try:
+                    json.dumps(data)  # this will fail on non-encodable values, like other classes
+                    fields[field] = data
+                except TypeError:  # 添加了对datetime的处理
+                    if isinstance(data, datetime.datetime):
+                        fields[field] = data.isoformat()
+                    elif isinstance(data, datetime.date):
+                        fields[field] = data.isoformat()
+                    elif isinstance(data, datetime.timedelta):
+                        fields[field] = (datetime.datetime.min + data).time().isoformat()
+                    else:
+                        fields[field] = None
+            # a json-encodable dict
+            return fields
+
+        return json.JSONEncoder.default(self, obj)
+
+
 class NewRequests:
     def __init__(self):
         self.sqldb = Table_To_SQL.SqlalchemyControlDB()
@@ -482,21 +506,44 @@ class NewRequests:
     def get_all_params_caseID(self, type='once'):
         if type == 'once':
             caseID = self.sqldb.session.query(self.params_once_table.caseID).all()
+
+            for case in caseID:
+                print(case)
+                line = self.sqldb.session.query(self.params_once_table).filter(self.params_once_table.caseID == case[0]).all()
+                print(line)
             return caseID
         elif type == 'all':
             caseID = self.sqldb.session.query(self.params_all_table.caseID).all()
             return caseID
 
-
     def get_once_url(self):
+        """
+        # 获取params_once_table表url
+        :return: 生成器返回
+        """
         cases = self.get_all_params_caseID()
-        print(cases)
         for case in cases:
-            db_host = self.sqldb.session.query(self.params_once_table.host).filter(self.params_once_table.caseID == case[0])
-            db_url = self.sqldb.session.query(self.params_once_table.url).filter(self.params_once_table.url == case[0])
+            db_host = self.sqldb.session.query(self.params_once_table.host).filter(self.params_once_table.caseID == case[0]).all()
+            db_url = self.sqldb.session.query(self.params_once_table.url).filter(self.params_once_table.caseID == case[0]).all()
+
+            url = '{}/{}'.format(db_host[0][0], db_url[0][0])
+            yield url
+
+    def get_all_url(self):
+        """
+        # 获取params_all_table表url
+        :return: 生成器返回
+        """
+        cases = self.get_all_params_caseID()
+        for case in cases:
+            db_host = self.sqldb.session.query(self.params_all_table.host).filter(self.params_all_table.caseID == case[0]).all()
+            db_url = self.sqldb.session.query(self.params_all_table.url).filter(self.params_all_table.caseID == case[0]).all()
             # host有数据使用该host地址
             if db_host:
-                url = '{}/{}'.format(db_host, db_url)
+                if db_host[0][0]:
+                    url = '{}/{}'.format(db_host[0][0], db_url[0][0])
+                else:
+                    url = 'http://127.0.0.1/{}'.format(db_host[0][0], db_url[0][0])
             # 没有使用config文件配置地址
             else:
                 if self.config.operating_environment == 'test':
@@ -505,13 +552,13 @@ class NewRequests:
                     url = '{}/{}'.format(db_host, self.config.dev_host)
                 elif self.config.operating_environment == 'local':
                     url = '{}/{}'.format(db_host, self.config.local_host)
-        #======================================================================#
-        # 直接写请求，不返回
+            yield url
+
+
 
 
 if __name__ == '__main__':
     # main()
     test = NewRequests()
-    url = test.get_once_url()
-    for i in url:
-        print('url-----', i)
+    test.get_all_params_caseID()
+

@@ -7,8 +7,7 @@ from sqlalchemy.orm import sessionmaker
 import pymysql
 import sys
 sys.path.append('..')
-from source.base import Logging, Config
-
+from base import Logging, Config
 
 
 class PySQLDB():
