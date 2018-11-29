@@ -8,10 +8,12 @@
 import xlrd
 from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, Text, Boolean
 from sqlalchemy.orm import sessionmaker, query
+from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.ext.declarative import declarative_base
 from base import Config, Logging
 import os, platform
 import time, datetime
+import json
 
 base = declarative_base()   # 创建基类
 conf = Config()
@@ -41,15 +43,14 @@ class ParamsAllTable(base):
     params_11 = Column(String(50), nullable=True, default=None, comment="请求入参")
 
     def __repr__(self):
-        return "<ParamsAllTable(caseID=%, casename=%, run=%, host=%, url=%, comment=%, params_1=%, params_2=%, " \
-               "params_3=%, params_4=%, params_5=%,params_6=%, params_7=%, params_8=%, params_9=%, params_10=%, " \
-               "params_11=%)>"%(ParamsAllTable.caseID, ParamsAllTable.casename, ParamsAllTable.run,
-                                ParamsAllTable.host, ParamsAllTable.url, ParamsAllTable.comment,
-                                ParamsAllTable.params_1, ParamsAllTable.params_2, ParamsAllTable.params_3,
-                                ParamsAllTable.params_4, ParamsAllTable.params_5,
-                                ParamsAllTable.params_6,ParamsAllTable.params_7,ParamsAllTable.params_8,
-                                ParamsAllTable.params_9, ParamsAllTable.params_10,
-                                ParamsAllTable.params_11)
+        return ("<ParamsOnceTable(id={}, caseID={}, casename={}, run={}, host={}, url={}, comment={}, params_1={}, "
+                "params_2={}, params_3={}, params_4={}, params_5={},params_6={}, params_7={}, params_8={}, "
+                "params_9={}, params_10={}, params_11={})>".format(ParamsOnceTable.id, ParamsOnceTable.caseID,
+                 ParamsOnceTable.casename, ParamsOnceTable.run, ParamsOnceTable.host, ParamsOnceTable.url,
+                 ParamsOnceTable.comment, ParamsOnceTable.params_1, ParamsOnceTable.params_2, ParamsOnceTable.params_3,
+                 ParamsOnceTable.params_4, ParamsOnceTable.params_5, ParamsOnceTable.params_6, ParamsOnceTable.params_7,
+                 ParamsOnceTable.params_8, ParamsOnceTable.params_9, ParamsOnceTable.params_10,
+                 ParamsOnceTable.params_11))
 
 
 class ParamsOnceTable(base):
@@ -75,14 +76,14 @@ class ParamsOnceTable(base):
     params_11 = Column(String(50), nullable=True, default=None, comment="请求入参")
 
     def __repr__(self):
-        return "<ParamsOnceTable(caseID=%, casename=%, run=%, host=%, url=%, comment=%, params_1=%, params_2=%, " \
-               "params_3=%, params_4=%, params_5=%,params_6=%, params_7=%, params_8=%, params_9=%, params_10=%, " \
-               "params_11=%)>"%(ParamsOnceTable.caseID, ParamsOnceTable.casename, ParamsOnceTable.run,
-                                ParamsOnceTable.host, ParamsOnceTable.url, ParamsOnceTable.comment,
-                                ParamsOnceTable.params_1, ParamsOnceTable.params_2, ParamsOnceTable.params_3,
-                                ParamsOnceTable.params_4, ParamsOnceTable.params_5, ParamsOnceTable.params_6,
-                                ParamsOnceTable.params_7,ParamsOnceTable.params_8, ParamsOnceTable.params_9,
-                                ParamsOnceTable.params_10, ParamsOnceTable.params_11)
+        return ("<ParamsOnceTable(id={}, caseID={}, casename={}, run={}, host={}, url={}, comment={}, params_1={}, "
+                "params_2={}, params_3={}, params_4={}, params_5={},params_6={}, params_7={}, params_8={}, "
+                "params_9={}, params_10={}, params_11={})>".format(ParamsOnceTable.id, ParamsOnceTable.caseID,
+                 ParamsOnceTable.casename, ParamsOnceTable.run, ParamsOnceTable.host, ParamsOnceTable.url,
+                 ParamsOnceTable.comment, ParamsOnceTable.params_1, ParamsOnceTable.params_2, ParamsOnceTable.params_3,
+                 ParamsOnceTable.params_4, ParamsOnceTable.params_5, ParamsOnceTable.params_6, ParamsOnceTable.params_7,
+                 ParamsOnceTable.params_8, ParamsOnceTable.params_9, ParamsOnceTable.params_10,
+                 ParamsOnceTable.params_11))
 
 
 class CheckOnceTable(base):
@@ -92,7 +93,7 @@ class CheckOnceTable(base):
     caseID = Column(String(20), nullable=False, comment="测试案例ID")
     casename = Column(String(20), nullable=True, default='smoke', comment="测试案例名称")
     comment = Column(Text, nullable=True, comment="测试场景说明")
-    code = Column(Integer, default=0, comment="响应返回预期code")
+    error_code = Column(Integer, default=0, comment="响应返回预期code")
     check_1 = Column(String(50), nullable=True, default=None, comment="校验参数")
     check_2 = Column(String(50), nullable=True, default=None, comment="校验参数")
     check_3 = Column(String(50), nullable=True, default=None, comment="校验参数")
@@ -106,9 +107,9 @@ class CheckOnceTable(base):
     check_11 = Column(String(50), nullable=True, default=None, comment="校验参数")
 
     def __repr__(self):
-        return "<CheckOnceTable(caseID=%, casename=%, code=%, check_1=%, check_2=%, check_3=%, check_4=%, check_5=%,check_6=%, " \
+        return "<CheckOnceTable(caseID=%, casename=%, error_code=%, check_1=%, check_2=%, check_3=%, check_4=%, check_5=%,check_6=%, " \
                "check_7=%, check_8=%, check_9=%, check_10=%, check_11=%)>"%(CheckOnceTable.caseID, CheckOnceTable.casename,
-                CheckOnceTable.code, CheckOnceTable.check_1,CheckOnceTable.check_2, CheckOnceTable.check_3,
+                CheckOnceTable.error_code, CheckOnceTable.check_1,CheckOnceTable.check_2, CheckOnceTable.check_3,
                 CheckOnceTable.check_4, CheckOnceTable.check_5, CheckOnceTable.check_6, CheckOnceTable.check_7,
                 CheckOnceTable.check_8,CheckOnceTable.check_9, CheckOnceTable.check_10, CheckOnceTable.check_11)
 
@@ -120,7 +121,7 @@ class CheckAllTable(base):
     caseID = Column(String(20), nullable=False, comment="测试案例ID")
     casename = Column(String(20), nullable=True, default='smoke', comment="测试案例名称")
     comment = Column(Text, nullable=True, comment="测试场景说明")
-    code = Column(Integer, default=0, comment="响应返回预期code")
+    error_code = Column(Integer, default=0, comment="响应返回预期code")
     check_1 = Column(String(50), nullable=True, default=None, comment="校验参数")
     check_2 = Column(String(50), nullable=True, default=None, comment="校验参数")
     check_3 = Column(String(50), nullable=True, default=None, comment="校验参数")
@@ -134,9 +135,9 @@ class CheckAllTable(base):
     check_11 = Column(String(50), nullable=True, default=None, comment="校验参数")
 
     def __repr__(self):
-        return "<CheckAllTable(caseID=%, casename=%, code=%, check_1=%, check_2=%, check_3=%, check_4=%, check_5=%,check_6=%, " \
+        return "<CheckAllTable(caseID=%, casename=%, error_code=%, check_1=%, check_2=%, check_3=%, check_4=%, check_5=%,check_6=%, " \
                "check_7=%, check_8=%, check_9=%, check_10=%, check_11=%)>"%(CheckAllTable.caseID, CheckAllTable.casename,
-                CheckAllTable.code, CheckAllTable.check_1, CheckAllTable.check_2, CheckAllTable.check_3,
+                CheckAllTable.error_code, CheckAllTable.check_1, CheckAllTable.check_2, CheckAllTable.check_3,
                 CheckAllTable.check_4, CheckAllTable.check_5, CheckAllTable.check_6, CheckAllTable.check_7,
                 CheckAllTable.check_8, CheckAllTable.check_9, CheckAllTable.check_10, CheckAllTable.check_11)
 
@@ -211,12 +212,50 @@ def get_excel_content(filename='TaskOs_api_refdata.xlsx'):
         row = table_params.row_values(rownum)
         # 组合头字段与行单元格
         dictparams = dict(zip(row_params_head, row))
+        # excel文件host为空使用config配置
+        if dictparams['host'] == '':
+            if conf.operating_environment == 'test':
+                dictparams['host'] = conf.test_host
+            elif conf.operating_environment == 'dev':
+                dictparams['host'] = conf.dev_host
+            elif conf.operating_environment == 'local':
+                dictparams['host'] = conf.local_host
+            else:
+                dictparams['host'] = '无效的配置'
         # excel check sheet配置内容
         row = table_check.row_values(rownum)
         dictcheck = dict(zip(row_check_head, row))
 
         dict_excel = {'params_sheet': dictparams, 'check_sheet': dictcheck}
         yield dict_excel
+
+
+class AlchemyEncoder(json.JSONEncoder):
+    """# Sqlalchemy查询返回Query类型转为json返回"""
+    def default(self, obj):
+        if isinstance(obj.__class__, DeclarativeMeta):
+            # SQLAlchemy class
+            fields = {}
+            # 过滤类的内部熟悉
+            for field in [x for x in dir(obj) if not x.startswith('_') and x != 'metadata']:
+                data = obj.__getattribute__(field)
+                try:
+                    json.dumps(data)  # this will fail on non-encodable values, like other classes
+                    fields[field] = data
+                except TypeError:
+                    # 添加了对datetime的处理
+                    if isinstance(data, datetime.datetime):
+                        fields[field] = data.isoformat()
+                    elif isinstance(data, datetime.date):
+                        fields[field] = data.isoformat()
+                    elif isinstance(data, datetime.timedelta):
+                        fields[field] = (datetime.datetime.min + data).time().isoformat()
+                    else:
+                        fields[field] = None
+            # 转json-encodable dict
+            return fields
+
+        return json.JSONEncoder.default(self, obj)
 
 
 class SqlalchemyControlDB:
@@ -238,7 +277,7 @@ class SqlalchemyControlDB:
 
     def connect_db(self):
         # 初始化连接mysqldb, 不显示sql logging
-        self.engine = create_engine(self.db_adress, echo=False)  # 建立数据库
+        self.engine = create_engine(self.db_adress, echo=False, encoding='utf-8')  # 建立数据库
         db_session = sessionmaker(bind=self.engine)  # 创建连接
         self.session = db_session()
 
@@ -259,15 +298,16 @@ class SqlalchemyControlDB:
                 self.session.roll_back()
         self.session.commit()
 
+    def close_db(self):
+        self.session.close()
+
     def query_db(self):
-        host = self.session.query(ParamsOnceTable.host).one()
-        return host
+        host = self.session.query(ParamsOnceTable).filter(ParamsOnceTable.url=='url1').all()
+        return json.dumps(host, cls=AlchemyEncoder)
 
 
 if __name__ == '__main__':
     run = SqlalchemyControlDB()
     run.connect_db()
-    # run.creat_all_table()
+    run.creat_all_table()
     run.insertdict()
-    # host = run.query_db()
-    # print(host)
