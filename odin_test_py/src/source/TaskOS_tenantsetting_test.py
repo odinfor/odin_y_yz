@@ -629,33 +629,33 @@ class NewRequests:
                 except requests.exceptions.HTTPError as msg:
                     error_code = 100
                     error_msg = msg
-                    rlt_data = {'caseid': caseid[0], 'error_code': error_code, 'error_msg': error_msg, 'rsp_data': rsp_json,
+                    rlt_data = {'caseID': caseid[0], 'error_code': error_code, 'error_msg': error_msg, 'rsp_data': rsp_json,
                             'is_pass': is_pass}
                     yield rlt_data
                 # 连接超时
                 except requests.exceptions.ConnectTimeout as msg:
                     error_code = 101
                     error_msg = msg
-                    rlt_data = {'caseid': caseid[0], 'error_code': error_code, 'error_msg': error_msg, 'rsp_data': rsp_json,
+                    rlt_data = {'caseID': caseid[0], 'error_code': error_code, 'error_msg': error_msg, 'rsp_data': rsp_json,
                             'is_pass': is_pass}
                     yield rlt_data
                 # 连接错误
                 except requests.exceptions.ConnectionError as msg:
                     error_code = 102
                     error_msg = msg
-                    rlt_data = {'caseid': caseid[0], 'error_code': error_code, 'error_msg': error_msg, 'rsp_data': rsp_json,
+                    rlt_data = {'caseID': caseid[0], 'error_code': error_code, 'error_msg': error_msg, 'rsp_data': rsp_json,
                             'is_pass': is_pass}
                     yield rlt_data
                 # 其他异常
                 except Exception as msg:
                     error_code = 103
                     error_msg = msg
-                    rlt_data = {'caseid': caseid[0], 'error_code': error_code, 'error_msg': error_msg, 'rsp_data': rsp_json,
+                    rlt_data = {'caseID': caseid[0], 'error_code': error_code, 'error_msg': error_msg, 'rsp_data': rsp_json,
                             'is_pass': is_pass}
                     yield rlt_data
                 else:
                     # 组装返回data
-                    rlt_data = {'caseid': caseid[0], 'error_code': error_code, 'error_msg': error_msg, 'rsp_data': rsp_json}
+                    rlt_data = {'caseID': caseid[0], 'error_code': error_code, 'error_msg': error_msg, 'rsp_data': rsp_json}
 
                     # 校验表
                     checkquery = self.sqldb.session.query(self.check_once_table).filter(self.check_once_table.caseID == caseid[0]).all()
@@ -679,48 +679,48 @@ class NewRequests:
                     else:
                         check_dict = {}
                     print('111')
-                    if rlt_data['rsp']['error_code'] == checkjson['error_code']:
+                    if rlt_data['rsp_data']['error_code'] == checkjson['error_code']:
                         log.append('响应返回code={}与期望一致'.format(rlt_data['error_code']))
                         for check_key_1, check_value_1 in check_dict:
                             checktime = 0
                             print('222')
                             # 响应返回data结构体为字典类型
-                            if isinstance(rlt_data['rsp']['data'], dict):
-                                if check_key_1 in rlt_data['rsp']['data'].keys():
+                            if isinstance(rlt_data['rsp_data']['data'], dict):
+                                if check_key_1 in rlt_data['rsp_data']['data'].keys():
                                     if rlt_data['data'][check_key_1] == check_value_1:
                                         log.append('响应返回参数:{}的值=预期值:{}'.format(check_key_1, check_value_1))
                                         checktime += 1
                                         if checktime == len(rlt_data.keys()):
                                             log.append('所有校验完成')
-                                            back_data = {'caseid': caseid[0], 'casename': casejson['casename'],
-                                                         'comment': casejson['comment'], 'rsp': rlt_data['rsp'], 'is_pass': is_pass,
+                                            back_data = {'caseID': caseid[0], 'casename': casejson['casename'],
+                                                         'comment': casejson['comment'], 'rsp': rlt_data['rsp_data'], 'is_pass': is_pass,
                                                          'log': log}
                                             yield back_data
                                     else:
                                         log.append('响应返回参数:{}的值!=预期值:{}.响应返回参数的值为:{}'.format(check_key_1,
                                                                                              check_value_1,
-                                                                                             rlt_data['rsp'][check_key_1]))
+                                                                                             rlt_data['rsp_data'][check_key_1]))
                                         is_pass = False
-                                        back_data = {'caseid': caseid[0], 'casename': casejson['casename'],
-                                                     'comment': casejson['comment'], 'rsp': rlt_data['rsp'], 'is_pass': is_pass,
+                                        back_data = {'caseID': caseid[0], 'casename': casejson['casename'],
+                                                     'comment': casejson['comment'], 'rsp': rlt_data['rsp_data'], 'is_pass': is_pass,
                                                      'log': log}
                                         yield back_data
                                 else:
                                     log.append('接口响应返回中未找到预期参数:{}'.format(check_key_1))
                                     is_pass = False
-                                    back_data = {'caseid': caseid[0], 'casename': casejson['casename'],
-                                                 'comment': casejson['comment'], 'rsp': rlt_data['rsp'], 'is_pass': is_pass,
+                                    back_data = {'caseID': caseid[0], 'casename': casejson['casename'],
+                                                 'comment': casejson['comment'], 'rsp': rlt_data['rsp_data'], 'is_pass': is_pass,
                                                  'log': log}
                                     yield back_data
                             # 响应返回data结构体为列表类型
-                            elif isinstance(rlt_data['rsp']['data'], list):
+                            elif isinstance(rlt_data['rsp_data']['data'], list):
                                 print('列表类型暂无校验')
                                 pass
                     else:
                         is_pass = False
-                        log.append('响应返回code={}与期望code={}不相符,结束参数校验'.format(rlt_data['rsp']['error_code'], checkjson['error_code']))
-                        back_data = {'caseid': caseid[0], 'casename': casejson['casename'],
-                                     'comment': casejson['comment'], 'rsp': rlt_data['rsp'], 'is_pass': is_pass,
+                        log.append('响应返回code={}与期望code={}不相符,结束参数校验'.format(rlt_data['rsp_data']['error_code'], checkjson['error_code']))
+                        back_data = {'caseID': caseid[0], 'casename': casejson['casename'],
+                                     'comment': casejson['comment'], 'rsp': rlt_data['rsp_data'], 'is_pass': is_pass,
                                      'log': log}
                         yield back_data
 
@@ -730,14 +730,13 @@ class NewRequests:
         :param data:send_requests方法返回
         :return:
         """
-        back_data = self.send_requests()
-        rsp_obj = self.rsp_table(**back_data)
+        rsp_obj = self.rsp_table(**data)
         try:
-            self.session.add(rsp_obj)
+            self.sqldb.session.add(rsp_obj)
         except:
-            self.session.roll_back()
+            self.sqldb.session.roll_back()
         else:
-            self.session.commit()
+            self.sqldb.session.commit()
 
     def final_done(self):
         self.sqldb.close_db()
@@ -752,3 +751,4 @@ if __name__ == '__main__':
     for line in data:
         print(line)
         test.record_rsp_to_db(line)
+    test.final_done()
