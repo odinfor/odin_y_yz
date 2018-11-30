@@ -6,14 +6,12 @@
 # @Software: PyCharm
 # @Comment : 文件数据转入SQL
 import xlrd
-from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, Text, Boolean, PickleType
-from sqlalchemy.orm import sessionmaker, query
-from sqlalchemy.ext.declarative import DeclarativeMeta
+from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, Text, Boolean
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from base import Config, Logging
 import os, platform
-import time, datetime
-import json
+import time
 
 base = declarative_base()   # 创建基类
 conf = Config()
@@ -231,34 +229,6 @@ def get_excel_content(filename='TaskOs_api_refdata.xlsx'):
         yield dict_excel
 
 
-class AlchemyEncoder(json.JSONEncoder):
-    """# Sqlalchemy查询返回Query类型转为json返回"""
-    def default(self, obj):
-        if isinstance(obj.__class__, DeclarativeMeta):
-            # SQLAlchemy class
-            fields = {}
-            # 过滤类的内部熟悉
-            for field in [x for x in dir(obj) if not x.startswith('_') and x != 'metadata']:
-                data = obj.__getattribute__(field)
-                try:
-                    json.dumps(data)  # this will fail on non-encodable values, like other classes
-                    fields[field] = data
-                except TypeError:
-                    # 添加了对datetime的处理
-                    if isinstance(data, datetime.datetime):
-                        fields[field] = data.isoformat()
-                    elif isinstance(data, datetime.date):
-                        fields[field] = data.isoformat()
-                    elif isinstance(data, datetime.timedelta):
-                        fields[field] = (datetime.datetime.min + data).time().isoformat()
-                    else:
-                        fields[field] = None
-            # 转json-encodable dict
-            return fields
-
-        return json.JSONEncoder.default(self, obj)
-
-
 class SqlalchemyControlDB:
     """# sqlalchemy 操作db"""
     def __init__(self):
@@ -312,10 +282,6 @@ class SqlalchemyControlDB:
         else:
             self.session.commit()
 
-    def query_db(self):
-        host = self.session.query(ParamsOnceTable).filter(ParamsOnceTable.url=='url1').all()
-        return json.dumps(host, cls=AlchemyEncoder)
-
 
 if __name__ == '__main__':
     run = SqlalchemyControlDB()
@@ -323,9 +289,4 @@ if __name__ == '__main__':
     run.creat_all_table()
     run.del_rsp_table()
     # # run.insertdict()
-    # data = {'caseID': '1543495404_1.0', 'casename': '这是说明1', 'comment': '',
-    #  'rsp': '{"error_code": 10500, "error_msg": "token\\u6821\\u9a8c\\u5931\\u8d25\\uff01", "data": null}',
-    #  'is_pass': False, 'log': "'响应返回code=10500与期望code=0不相符,结束参数校验;'"}
-    #
-    # run.insertrsp(data)
     run.close_db()

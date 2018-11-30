@@ -20,7 +20,6 @@ from base import Logging, Config, UseingExcel
 import Table_To_SQL
 import datetime
 from sqlalchemy.ext.declarative import DeclarativeMeta
-from sqlalchemy.orm import Query
 
 
 def cut_off_rule(func):
@@ -693,7 +692,6 @@ class NewRequests:
                             yield back_data
                         for check_key_1, check_value_1 in check_dict:
                             checktime = 0
-                            print('222')
                             # 响应返回data结构体为字典类型
                             if isinstance(rlt_data['rsp_data']['data'], dict):
                                 if check_key_1 in rlt_data['rsp_data']['data'].keys():
@@ -761,13 +759,16 @@ if __name__ == '__main__':
     # main()
     test = NewRequests()
     #test.get_all_params_caseID()
+    # once执行,清空开始内容和返回表
     test.sqldb.delete_table('rsp_table')
     test.sqldb.delete_table('params_once_table')
     test.sqldb.delete_table('check_once_table')
+    # 配置文件写入库
     test.sqldb.insertdict()
+    # 调用请求
     data = test.send_requests()
     for line in data:
-        print('line:', line)
+        # 请求结果写入库
         test.record_rsp_to_db(line)
-        # test.sqldb.insertrsp(line)
+    # 结束关闭session连接
     test.final_done()
