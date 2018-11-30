@@ -6,7 +6,7 @@
 # @Software: PyCharm
 # @Comment : 文件数据转入SQL
 import xlrd
-from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, Text, Boolean
+from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, Text, Boolean, PickleType
 from sqlalchemy.orm import sessionmaker, query
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.ext.declarative import declarative_base
@@ -107,11 +107,12 @@ class CheckOnceTable(base):
     check_11 = Column(String(50), nullable=True, default=None, comment="校验参数")
 
     def __repr__(self):
-        return "<CheckOnceTable(caseID=%, casename=%, error_code=%, check_1=%, check_2=%, check_3=%, check_4=%, check_5=%,check_6=%, " \
-               "check_7=%, check_8=%, check_9=%, check_10=%, check_11=%)>"%(CheckOnceTable.caseID, CheckOnceTable.casename,
-                CheckOnceTable.error_code, CheckOnceTable.check_1,CheckOnceTable.check_2, CheckOnceTable.check_3,
-                CheckOnceTable.check_4, CheckOnceTable.check_5, CheckOnceTable.check_6, CheckOnceTable.check_7,
-                CheckOnceTable.check_8,CheckOnceTable.check_9, CheckOnceTable.check_10, CheckOnceTable.check_11)
+        return "<CheckAllTable(caseID={}, casename={}, error_code={}, check_1={}, check_2={}, check_3={}, check_4={}, " \
+               "check_5={},check_6={}, check_7={}, check_8={}, check_9={}, check_10={}, check_11={})>".format(
+                CheckAllTable.caseID, CheckAllTable.casename, CheckAllTable.error_code, CheckAllTable.check_1,
+                CheckAllTable.check_2, CheckAllTable.check_3, CheckAllTable.check_4, CheckAllTable.check_5,
+                CheckAllTable.check_6, CheckAllTable.check_7, CheckAllTable.check_8, CheckAllTable.check_9,
+                CheckAllTable.check_10, CheckAllTable.check_11)
 
 
 class CheckAllTable(base):
@@ -135,11 +136,12 @@ class CheckAllTable(base):
     check_11 = Column(String(50), nullable=True, default=None, comment="校验参数")
 
     def __repr__(self):
-        return "<CheckAllTable(caseID=%, casename=%, error_code=%, check_1=%, check_2=%, check_3=%, check_4=%, check_5=%,check_6=%, " \
-               "check_7=%, check_8=%, check_9=%, check_10=%, check_11=%)>"%(CheckAllTable.caseID, CheckAllTable.casename,
-                CheckAllTable.error_code, CheckAllTable.check_1, CheckAllTable.check_2, CheckAllTable.check_3,
-                CheckAllTable.check_4, CheckAllTable.check_5, CheckAllTable.check_6, CheckAllTable.check_7,
-                CheckAllTable.check_8, CheckAllTable.check_9, CheckAllTable.check_10, CheckAllTable.check_11)
+        return "<CheckAllTable(caseID={}, casename={}, error_code={}, check_1={}, check_2={}, check_3={}, check_4={}, " \
+               "check_5={},check_6={}, check_7={}, check_8={}, check_9={}, check_10={}, check_11={})>".format(
+                CheckAllTable.caseID, CheckAllTable.casename, CheckAllTable.error_code, CheckAllTable.check_1,
+                CheckAllTable.check_2, CheckAllTable.check_3, CheckAllTable.check_4, CheckAllTable.check_5,
+                CheckAllTable.check_6, CheckAllTable.check_7, CheckAllTable.check_8, CheckAllTable.check_9,
+                CheckAllTable.check_10, CheckAllTable.check_11)
 
 
 class RspTable(base):
@@ -154,9 +156,8 @@ class RspTable(base):
     log = Column(String(500), nullable=True, default=None, comment="校验说明")
 
     def __repr__(self):
-        return "<RspTable(caseID=%, casename=%, comment=%, rsp=%, is_pass=%, log=%>"%(RspTable.caseID, RspTable.casename,
-                                                                                         RspTable.comment, RspTable.rsp,
-                                                                                         RspTable.is_pass, RspTable.log)
+        return "<RspTable(caseID={}, casename={}, comment={}, rsp={}, is_pass={}, log={}>".format(RspTable.caseID,
+                RspTable.casename, RspTable.comment, RspTable.rsp, RspTable.is_pass, RspTable.log)
 
 
 class TestTable(base):
@@ -301,6 +302,16 @@ class SqlalchemyControlDB:
     def close_db(self):
         self.session.close()
 
+    def delete_table(self, tablename):
+        sql = 'delete from {}'.format(tablename)
+        try:
+            self.session.execute(sql)
+        except Exception as msg:
+            log.error(msg)
+            self.session.roll_back()
+        else:
+            self.session.commit()
+
     def query_db(self):
         host = self.session.query(ParamsOnceTable).filter(ParamsOnceTable.url=='url1').all()
         return json.dumps(host, cls=AlchemyEncoder)
@@ -310,4 +321,11 @@ if __name__ == '__main__':
     run = SqlalchemyControlDB()
     run.connect_db()
     run.creat_all_table()
-    run.insertdict()
+    run.del_rsp_table()
+    # # run.insertdict()
+    # data = {'caseID': '1543495404_1.0', 'casename': '这是说明1', 'comment': '',
+    #  'rsp': '{"error_code": 10500, "error_msg": "token\\u6821\\u9a8c\\u5931\\u8d25\\uff01", "data": null}',
+    #  'is_pass': False, 'log': "'响应返回code=10500与期望code=0不相符,结束参数校验;'"}
+    #
+    # run.insertrsp(data)
+    run.close_db()

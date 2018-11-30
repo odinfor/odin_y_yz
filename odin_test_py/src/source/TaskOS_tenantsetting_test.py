@@ -584,8 +584,8 @@ class NewRequests:
         caseidlist = self.get_all_params_caseID()
         # 组成请求头
         getauth = self.login_yunxi()
-        auth = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJvZGludGVzdDAxIiwianRpIjoiMTYyMzAyNjg4MjYyODgxMjg2IiwiaWF0IjoxNTQzNDk1Mj' \
-               'IzfQ.3E275DtNOoDHeZuHb21J7RyR-hDQeLMIBK1qhUocBfF_ZrAAOzA3aVPCLYntfMenJoXpoxMrjp_BSQFrFHY_BQ'
+        auth = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJvZGludGVzdDAxIiwianRpIjoiMTYyMzAyNjg4MjYyODgxMjg2IiwiaWF0IjoxNTQzNTU4N' \
+               'jAxfQ.9oQ9hrEZxdpy5akXg-xwGXuezKkMroA79A5143WP5E15Kiusvf-UfrhIu21CM6pvVBGYPgF5CD4avTkkyN6E_g'
         headers = {'auth': auth, 'Content-Type': 'application/json'}
 
         for caseid in caseidlist:
@@ -615,15 +615,17 @@ class NewRequests:
                 params_value_list.append(newlist[1])
             # 组装完成的入参
             input_dict = dict(zip(params_key_list, params_value_list))
+            print('请求入参input_dict={}'.format(input_dict))
 
             if casejson['run']:
                 try:
                     # 发送请求
                     if type == 'post':
-                        rsp = requests.post(url=urladdress, data=input_dict, headers=headers, timeout=10)
+                        rsp = requests.post(url=urladdress, data=json.dumps(input_dict), headers=headers, timeout=10)
                     elif type == 'get':
                         rsp = requests.get(url=urladdress, params=input_dict, headers=headers, timeout=10)
                     rsp_json = rsp.json()
+                    print('rsp_json={}'.format(rsp_json))
                     rsp.raise_for_status()
                 # HTTP错误
                 except requests.exceptions.HTTPError as msg:
@@ -678,9 +680,17 @@ class NewRequests:
                         check_dict = dict(zip(check_key_list, check_value_list))
                     else:
                         check_dict = {}
-                    print('111')
+
                     if rlt_data['rsp_data']['error_code'] == checkjson['error_code']:
-                        log.append('响应返回code={}与期望一致'.format(rlt_data['error_code']))
+                        log.append('响应返回code={}与期望一致;'.format(rlt_data['error_code']))
+                        if not check_dict:
+                            is_pass = True
+                            log.append('校验参数列表为空,结束参数校验;'.format(
+                                rlt_data['rsp_data']['error_code'], checkjson['error_code']))
+                            back_data = {'caseID': caseid[0], 'casename': casejson['casename'],
+                                         'comment': casejson['comment'], 'rsp': rlt_data['rsp_data'], 'is_pass': is_pass,
+                                         'log': log}
+                            yield back_data
                         for check_key_1, check_value_1 in check_dict:
                             checktime = 0
                             print('222')
@@ -688,16 +698,16 @@ class NewRequests:
                             if isinstance(rlt_data['rsp_data']['data'], dict):
                                 if check_key_1 in rlt_data['rsp_data']['data'].keys():
                                     if rlt_data['data'][check_key_1] == check_value_1:
-                                        log.append('响应返回参数:{}的值=预期值:{}'.format(check_key_1, check_value_1))
+                                        log.append('响应返回参数:{}的值=预期值:{};'.format(check_key_1, check_value_1))
                                         checktime += 1
                                         if checktime == len(rlt_data.keys()):
-                                            log.append('所有校验完成')
+                                            log.append('所有校验完成;')
                                             back_data = {'caseID': caseid[0], 'casename': casejson['casename'],
                                                          'comment': casejson['comment'], 'rsp': rlt_data['rsp_data'], 'is_pass': is_pass,
                                                          'log': log}
                                             yield back_data
                                     else:
-                                        log.append('响应返回参数:{}的值!=预期值:{}.响应返回参数的值为:{}'.format(check_key_1,
+                                        log.append('响应返回参数:{}的值!=预期值:{}.响应返回参数的值为:{};'.format(check_key_1,
                                                                                              check_value_1,
                                                                                              rlt_data['rsp_data'][check_key_1]))
                                         is_pass = False
@@ -706,7 +716,7 @@ class NewRequests:
                                                      'log': log}
                                         yield back_data
                                 else:
-                                    log.append('接口响应返回中未找到预期参数:{}'.format(check_key_1))
+                                    log.append('接口响应返回中未找到预期参数:{};'.format(check_key_1))
                                     is_pass = False
                                     back_data = {'caseID': caseid[0], 'casename': casejson['casename'],
                                                  'comment': casejson['comment'], 'rsp': rlt_data['rsp_data'], 'is_pass': is_pass,
@@ -718,7 +728,7 @@ class NewRequests:
                                 pass
                     else:
                         is_pass = False
-                        log.append('响应返回code={}与期望code={}不相符,结束参数校验'.format(rlt_data['rsp_data']['error_code'], checkjson['error_code']))
+                        log.append('响应返回code={}与期望code={}不相符,结束参数校验;'.format(rlt_data['rsp_data']['error_code'], checkjson['error_code']))
                         back_data = {'caseID': caseid[0], 'casename': casejson['casename'],
                                      'comment': casejson['comment'], 'rsp': rlt_data['rsp_data'], 'is_pass': is_pass,
                                      'log': log}
@@ -730,6 +740,11 @@ class NewRequests:
         :param data:send_requests方法返回
         :return:
         """
+        # data数据类型转化
+        data['rsp'] = json.dumps(data['rsp'], ensure_ascii=False)
+        data['log'] = str(data['log'])[1:-1]
+        print(data['rsp'], type(data['rsp']))
+        print(data['log'], type(data['log']))
         rsp_obj = self.rsp_table(**data)
         try:
             self.sqldb.session.add(rsp_obj)
@@ -746,9 +761,13 @@ if __name__ == '__main__':
     # main()
     test = NewRequests()
     #test.get_all_params_caseID()
+    test.sqldb.delete_table('rsp_table')
+    test.sqldb.delete_table('params_once_table')
+    test.sqldb.delete_table('check_once_table')
+    test.sqldb.insertdict()
     data = test.send_requests()
-    print(data)
     for line in data:
-        print(line)
+        print('line:', line)
         test.record_rsp_to_db(line)
+        # test.sqldb.insertrsp(line)
     test.final_done()
