@@ -556,35 +556,35 @@ class NewRequests:
         # 登录云徙
         @:return auth
         """
-        url = 'http://test.yingzi.com//huieryun-identity/api/v1/auth/yingzi/user/breeding/auth'
-        headers = {'Content-Type': 'x-www-form-urlencoded'}
-        data = {'userCode': 'jgs2',
-                'userPassword': 'eXo4ODg4ODg',
-                'loginType': 'nameMobile',
-                'trench': 'pc',
-                'loginFlag': 1,
-                'timestamp': 1541574621568}
+        rspdata = {'error_code': 10000, 'error_msg': '登录接口响应返回异常', 'auth': ''}
+        url = self.config.login_url
+        headers = {'Content-Type': 'application/json;charset=UTF-8'}
+        data = {'username': self.config.login_username, 'userPassword': self.config.login_pwd}
 
-        rsp = requests.post(url, data, headers)
         try:
+            rsp = requests.post(url, data, headers)
             rsp.raise_for_status()
         except Exception as e:
             print("云徙登录响应返回异常:{}".format(e))
+            return rspdata
         else:
-            auth = rsp.json()['data']['auth']
-            return auth
+            if rsp.json()['error_code'] == 0:
+                rspdata['error_code'] = rsp.json()['error_code']
+                rspdata['error_code'] = rsp.json()['error_msg']
+                rspdata['auth'] = rsp.json()['data']['auth']
+                return rspdata
+            else:
+                rspdata['error_code'] = rsp.json()['error_code']
+                rspdata['error_code'] = rsp.json()['error_msg']
+                return rspdata
 
-    def send_requests(self, type='post'):
+    def send_requests(self, auth, type='post'):
         """
         # 调用接口请求
         :param type:请求方式
         :return:
         """
         caseidlist = self.get_all_params_caseID()
-        # 组成请求头
-        getauth = self.login_yunxi()
-        auth = 'eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJvZGludGVzdDAxIiwianRpIjoiMTYyMzAyNjg4MjYyODgxMjg2IiwiaWF0IjoxNTQzNTU4N' \
-               'jAxfQ.9oQ9hrEZxdpy5akXg-xwGXuezKkMroA79A5143WP5E15Kiusvf-UfrhIu21CM6pvVBGYPgF5CD4avTkkyN6E_g'
         headers = {'auth': auth, 'Content-Type': 'application/json'}
 
         for caseid in caseidlist:
@@ -741,8 +741,7 @@ class NewRequests:
         # data数据类型转化
         data['rsp'] = json.dumps(data['rsp'], ensure_ascii=False)
         data['log'] = str(data['log'])[1:-1]
-        print(data['rsp'], type(data['rsp']))
-        print(data['log'], type(data['log']))
+
         rsp_obj = self.rsp_table(**data)
         try:
             self.sqldb.session.add(rsp_obj)
@@ -765,10 +764,16 @@ if __name__ == '__main__':
     test.sqldb.delete_table('check_once_table')
     # 配置文件写入库
     test.sqldb.insertdict()
-    # 调用请求
-    data = test.send_requests()
-    for line in data:
-        # 请求结果写入库
-        test.record_rsp_to_db(line)
+
+    login_rsp = test.login_yunxi()
+    if login_rsp['error_code'] == 0:
+        # 调用请求
+        data = test.send_requests(auth=login_rsp['auth'])
+        for line in data:
+            # 请求结果写入库
+            test.record_rsp_to_db(line)
+    else:
+        data1 = {'caseID': 1, 'casename': '', 'comment': '', 'rsp': login_rsp, 'is_pass': False, 'log': login_rsp['error_msg']}
+        test.record_rsp_to_db(data1)
     # 结束关闭session连接
     test.final_done()

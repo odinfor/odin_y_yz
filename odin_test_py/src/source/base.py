@@ -40,6 +40,9 @@ class Config():
             self.log_dir = os.path.join(PROJECT_DIR, conf.get('dir_base', 'log_dir'))           # 日志文件路径
             self.refdata_dir = os.path.join(PROJECT_DIR, conf.get('dir_base', 'refdata_dir'))   # 配置文件路径
             self.report_dir = os.path.join(PROJECT_DIR, conf.get('dir_base', 'report_dir'))     # 测试报告输出路径
+            self.login_url = conf.get('dir_base', 'login_url')
+            self.login_username = conf.get('dir_base', 'login_username')
+            self.login_pwd = conf.get('dir_base', 'login_pwd')
 
             # zookeeper配置
             self.zkp_host = conf.get('zookeeper_base', 'zkp_host')  # zookeeper host地址
