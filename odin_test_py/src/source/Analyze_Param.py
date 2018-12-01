@@ -31,8 +31,18 @@ class ParamsMethod:
             self.base_type = True       # 基准状态设置为True
             data = kwargs
             return data
-        # url相同的case
-        elif url == self.base_url
+        # url相同的case且不是smoke场景
+        elif url == self.base_url and casename != 'casename':
+            self.base_type = False
+            # useconfig:完全使用配置入参
+            if casename == 'useconfig':
+                data = kwargs
+                return data
+            # 设置目标参数为空
+            elif '_is_null' in casename:
+                pass
+
+
 
 
 
