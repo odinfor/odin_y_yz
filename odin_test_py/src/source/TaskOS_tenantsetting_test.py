@@ -11,6 +11,7 @@ import os
 import json
 import requests
 import random
+import threading
 from functools import wraps
 import sys
 current_dir = os.path.abspath(os.path.dirname(__file__))
@@ -502,6 +503,7 @@ class NewRequests:
         self.check_all_table = Table_To_SQL.CheckAllTable
         self.rsp_table = Table_To_SQL.RspTable
 
+        self.login_result = ''
         self.config = Config()
         self.log = Logging()
 
@@ -554,6 +556,11 @@ class NewRequests:
                     url = '{}/{}'.format(db_host, self.config.local_host)
             yield url
 
+    def run_login(self):
+        """# 5分钟重新获取一次auth"""
+        global timer
+        timer = threading.Timer(300, self.login_yunxi)
+
     def login_yunxi(self):
         """
         # 登录云徙
@@ -563,7 +570,6 @@ class NewRequests:
         url = self.config.login_url
         headers = {'Content-Type': 'application/json;charset=UTF-8'}
         data = {'username': self.config.login_username, 'userPassword': self.config.login_pwd}
-
         try:
             rsp = requests.post(url, data, headers)
             rsp.raise_for_status()
