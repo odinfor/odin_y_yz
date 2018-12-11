@@ -24,10 +24,11 @@ class ParamsAllTable(base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     caseID = Column(String(20), nullable=False, comment="测试案例ID")
     casename = Column(String(20), nullable=False, default='smoke', comment="测试案例名称")
+    comment = Column(Text, nullable=True, comment="测试场景说明")
+    order_id = Column(String(3), nullable=True, default='False', comment="依赖执行顺序")
     run = Column(String(5), nullable=False, default='True', comment="是否执行该案例")
     host = Column(String(50), nullable=True, comment="host地址")
     url = Column(String(50), nullable=True, comment="接口地址")
-    comment = Column(Text, nullable=True, comment="测试场景说明")
     params_1 = Column(String(50), nullable=True, default=None, comment="请求入参")
     params_2 = Column(String(50), nullable=True, default=None, comment="请求入参")
     params_3 = Column(String(50), nullable=True, default=None, comment="请求入参")
@@ -41,14 +42,14 @@ class ParamsAllTable(base):
     params_11 = Column(String(50), nullable=True, default=None, comment="请求入参")
 
     def __repr__(self):
-        return ("<ParamsOnceTable(id={}, caseID={}, casename={}, run={}, host={}, url={}, comment={}, params_1={}, "
-                "params_2={}, params_3={}, params_4={}, params_5={},params_6={}, params_7={}, params_8={}, "
+        return ("<ParamsOnceTable(id={}, caseID={}, casename={}, comment={}, order_id={}, run={}, host={}, url={}, "
+                "params_1={}, params_2={}, params_3={}, params_4={}, params_5={},params_6={}, params_7={}, params_8={},"
                 "params_9={}, params_10={}, params_11={})>".format(ParamsOnceTable.id, ParamsOnceTable.caseID,
-                 ParamsOnceTable.casename, ParamsOnceTable.run, ParamsOnceTable.host, ParamsOnceTable.url,
-                 ParamsOnceTable.comment, ParamsOnceTable.params_1, ParamsOnceTable.params_2, ParamsOnceTable.params_3,
-                 ParamsOnceTable.params_4, ParamsOnceTable.params_5, ParamsOnceTable.params_6, ParamsOnceTable.params_7,
-                 ParamsOnceTable.params_8, ParamsOnceTable.params_9, ParamsOnceTable.params_10,
-                 ParamsOnceTable.params_11))
+                 ParamsOnceTable.casename, ParamsOnceTable.comment, ParamsAllTable.order_id, ParamsOnceTable.run,
+                 ParamsOnceTable.host, ParamsOnceTable.url, ParamsOnceTable.params_1, ParamsOnceTable.params_2,
+                 ParamsOnceTable.params_3, ParamsOnceTable.params_4, ParamsOnceTable.params_5, ParamsOnceTable.params_6,
+                 ParamsOnceTable.params_7, ParamsOnceTable.params_8, ParamsOnceTable.params_9,
+                 ParamsOnceTable.params_10, ParamsOnceTable.params_11))
 
 
 class ParamsOnceTable(base):
@@ -57,10 +58,11 @@ class ParamsOnceTable(base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     caseID = Column(String(20), nullable=False, comment="测试案例ID")
     casename = Column(String(20), nullable=False, default='smoke', comment="测试案例名称")
-    run = Column(String(5), nullable=False, default='True', comment="是否执行该案例")
-    host = Column(String(50), nullable=False, comment="host地址")
-    url = Column(String(50), nullable=True, comment="接口地址")
     comment = Column(Text, nullable=True, comment="测试场景说明")
+    order_id = Column(String(3), nullable=True, default='False', comment="依赖执行顺序")
+    run = Column(String(5), nullable=False, default='True', comment="是否执行该案例")
+    host = Column(String(50), nullable=True, comment="host地址")
+    url = Column(String(50), nullable=True, comment="接口地址")
     params_1 = Column(String(50), nullable=True, default=None, comment="请求入参")
     params_2 = Column(String(50), nullable=True, default=None, comment="请求入参")
     params_3 = Column(String(50), nullable=True, default=None, comment="请求入参")
@@ -74,14 +76,14 @@ class ParamsOnceTable(base):
     params_11 = Column(String(50), nullable=True, default=None, comment="请求入参")
 
     def __repr__(self):
-        return ("<ParamsOnceTable(id={}, caseID={}, casename={}, run={}, host={}, url={}, comment={}, params_1={}, "
-                "params_2={}, params_3={}, params_4={}, params_5={},params_6={}, params_7={}, params_8={}, "
+        return ("<ParamsOnceTable(id={}, caseID={}, casename={}, comment={}, order_id={}, run={}, host={}, url={}, "
+                "params_1={}, params_2={}, params_3={}, params_4={}, params_5={},params_6={}, params_7={}, params_8={},"
                 "params_9={}, params_10={}, params_11={})>".format(ParamsOnceTable.id, ParamsOnceTable.caseID,
-                 ParamsOnceTable.casename, ParamsOnceTable.run, ParamsOnceTable.host, ParamsOnceTable.url,
-                 ParamsOnceTable.comment, ParamsOnceTable.params_1, ParamsOnceTable.params_2, ParamsOnceTable.params_3,
-                 ParamsOnceTable.params_4, ParamsOnceTable.params_5, ParamsOnceTable.params_6, ParamsOnceTable.params_7,
-                 ParamsOnceTable.params_8, ParamsOnceTable.params_9, ParamsOnceTable.params_10,
-                 ParamsOnceTable.params_11))
+                 ParamsOnceTable.casename, ParamsOnceTable.comment, ParamsAllTable.order_id, ParamsOnceTable.run,
+                 ParamsOnceTable.host, ParamsOnceTable.url, ParamsOnceTable.params_1, ParamsOnceTable.params_2,
+                 ParamsOnceTable.params_3, ParamsOnceTable.params_4, ParamsOnceTable.params_5, ParamsOnceTable.params_6,
+                 ParamsOnceTable.params_7, ParamsOnceTable.params_8, ParamsOnceTable.params_9,
+                 ParamsOnceTable.params_10, ParamsOnceTable.params_11))
 
 
 class CheckOnceTable(base):
@@ -149,24 +151,16 @@ class RspTable(base):
     caseID = Column(String(20), nullable=False, comment="测试案例id")
     casename = Column(String(20), nullable=True, default='smoke', comment="测试case名称")
     comment = Column(Text, nullable=True, comment="测试场景说明")
+    url = Column(String(100), nullable=False, comment="调用接口地址")
+    post_data = Column(String(200), nullable=True, comment="传参")
     rsp = Column(String(500), nullable=True, default=None, comment="接口响应返回")
     is_pass = Column(Boolean, nullable=True, default=False, comment="是否通过")
     log = Column(String(500), nullable=True, default=None, comment="校验说明")
 
     def __repr__(self):
-        return "<RspTable(caseID={}, casename={}, comment={}, rsp={}, is_pass={}, log={}>".format(RspTable.caseID,
-                RspTable.casename, RspTable.comment, RspTable.rsp, RspTable.is_pass, RspTable.log)
-
-
-class TestTable(base):
-    """# 响应结果表"""
-    __tablename__ = 'test_table'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    caseID = Column(String(20), nullable=True, comment="测试案例id")
-    casename = Column(String(20), nullable=True, default='smoke', comment="测试case名称")
-
-    def __repr__(self):
-        return "<TestTable(caseID=%, casename=%>"%(TestTable.caseID, TestTable.casename)
+        return "<RspTable(caseID={}, casename={}, comment={}, url={}, post_data={}, rsp={}, is_pass={}, log={}>".format(
+                RspTable.caseID, RspTable.casename, RspTable.comment, RspTable.url, RspTable.post_data, RspTable.rsp,
+                RspTable.is_pass, RspTable.log)
 
 
 def get_excel_content(filename='TaskOs_api_refdata.xlsx'):
@@ -287,6 +281,6 @@ if __name__ == '__main__':
     run = SqlalchemyControlDB()
     run.connect_db()
     run.creat_all_table()
-    run.del_rsp_table()
+    # run.del_rsp_table()
     # # run.insertdict()
     run.close_db()

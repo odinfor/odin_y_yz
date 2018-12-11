@@ -490,6 +490,9 @@ class AlchemyEncoder(json.JSONEncoder):
 
 
 class NewRequests:
+
+    _base_data = {}
+
     def __init__(self):
         self.sqldb = Table_To_SQL.SqlalchemyControlDB()
         self.sqldb.connect_db()
