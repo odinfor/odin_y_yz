@@ -23,7 +23,7 @@ class ParamsAllTable(base):
     __tablename__ = 'params_all_table'
     id = Column(Integer, primary_key=True, autoincrement=True)
     caseID = Column(String(20), nullable=False, comment="测试案例ID")
-    casename = Column(String(20), nullable=False, default='smoke', comment="测试案例名称")
+    casename = Column(String(40), nullable=False, default='smoke', comment="测试案例名称")
     comment = Column(Text, nullable=True, comment="测试场景说明")
     order_id = Column(String(3), nullable=True, default='False', comment="依赖执行顺序")
     run = Column(String(5), nullable=False, default='True', comment="是否执行该案例")
@@ -57,7 +57,7 @@ class ParamsOnceTable(base):
     __tablename__ = 'params_once_table'
     id = Column(Integer, primary_key=True, autoincrement=True)
     caseID = Column(String(20), nullable=False, comment="测试案例ID")
-    casename = Column(String(20), nullable=False, default='smoke', comment="测试案例名称")
+    casename = Column(String(40), nullable=False, default='smoke', comment="测试案例名称")
     comment = Column(Text, nullable=True, comment="测试场景说明")
     order_id = Column(String(3), nullable=True, default='False', comment="依赖执行顺序")
     run = Column(String(5), nullable=False, default='True', comment="是否执行该案例")
@@ -91,7 +91,7 @@ class CheckOnceTable(base):
     __tablename__ = 'check_once_table'
     id = Column(Integer, primary_key=True, autoincrement=True)
     caseID = Column(String(20), nullable=False, comment="测试案例ID")
-    casename = Column(String(20), nullable=True, default='smoke', comment="测试案例名称")
+    casename = Column(String(40), nullable=True, default='smoke', comment="测试案例名称")
     comment = Column(Text, nullable=True, comment="测试场景说明")
     error_code = Column(Integer, default=0, comment="响应返回预期code")
     check_1 = Column(String(50), nullable=True, default=None, comment="校验参数")
@@ -120,7 +120,7 @@ class CheckAllTable(base):
     __tablename__ = 'check_all_table'
     id = Column(Integer, primary_key=True, autoincrement=True)
     caseID = Column(String(20), nullable=False, comment="测试案例ID")
-    casename = Column(String(20), nullable=True, default='smoke', comment="测试案例名称")
+    casename = Column(String(40), nullable=True, default='smoke', comment="测试案例名称")
     comment = Column(Text, nullable=True, comment="测试场景说明")
     error_code = Column(Integer, default=0, comment="响应返回预期code")
     check_1 = Column(String(50), nullable=True, default=None, comment="校验参数")
@@ -149,7 +149,7 @@ class RspTable(base):
     __tablename__ = 'rsp_table'
     id = Column(Integer, primary_key=True, autoincrement=True)
     caseID = Column(String(20), nullable=False, comment="测试案例id")
-    casename = Column(String(20), nullable=True, default='smoke', comment="测试case名称")
+    casename = Column(String(40), nullable=True, default='smoke', comment="测试case名称")
     comment = Column(Text, nullable=True, comment="测试场景说明")
     url = Column(String(100), nullable=False, comment="调用接口地址")
     post_data = Column(String(200), nullable=True, comment="传参")

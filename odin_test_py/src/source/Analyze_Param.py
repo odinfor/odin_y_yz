@@ -7,10 +7,6 @@
 # @Comment : 解析请求参数形式,casename<支持形式：smoke, useconfig, is_null, too_long>
 #                          param<1.依赖入参:${}, 2.函数构建:=func()>
 
-import re
-from TaskOS_tenantsetting_test import NewRequests
-
-
 class ParamsMethod:
 
     __base_url = ''       # 基准url
@@ -40,7 +36,7 @@ class ParamsMethod:
             # useconfig:完全使用配置入参
             if casename == 'useconfig':
                 data['getdata'] = kwargs
-                return self.__base_data
+                return data
             # 设置目标参数为空
             elif '_is_null' in casename:
                 # 已设置过基准值
